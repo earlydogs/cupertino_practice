@@ -32,55 +32,20 @@ class MainPage extends StatefulWidget {
 }
 
 class _MainPageState extends State<MainPage> {
-  var _message;
-  final d = Decimal.tryParse;
 
-  var _currentBalanceFocusNode = FocusNode();
-  var _monthlyAdditionFocusNode = FocusNode();
-  var _interestRateYearFocusNode = FocusNode();
-  var _periodYearFocusNode = FocusNode();
-
-//入力項目のコントローラ
-  final _controllerCurrentBalance = TextEditingController();
-  final _controllerMonthlyAddition = TextEditingController();
-  final _controllerInterestRateYear = TextEditingController();
-  final _controllerPeriodYear = TextEditingController();
 
   final _tab = <Tab>[
     Tab(text: 'Input', icon: Icon(Icons.attach_money)),
     Tab(text: 'Graph', icon: Icon(Icons.trending_up)),
     Tab(text: 'Table', icon: Icon(Icons.view_list)),
-    Tab(text: 'Tablet', icon: Icon(Icons.view_list)),
   ];
 
   @override
   void initState() {
-    _message = 'OK';
     super.initState();
   }
 
-  void buttonPressed() {
-    //big decimal で受け取る。が、Doubleで計算しちゃう。。
-    var inputCurrentBalance = d(_controllerCurrentBalance.text);
-    var inputMonthlyAddition = d(_controllerMonthlyAddition.text);
-    var inputInterestRateYear = d(_controllerInterestRateYear.text);
-    var inputPeriodYear = d(_controllerPeriodYear.text);
-    var inputInterestRateYearNum =
-        d((inputInterestRateYear.toDouble() / 100 + 1).toString());
-    var inputInterestRateMonth =
-        (pow(inputInterestRateYearNum.toDouble(), d('0.0833333').toDouble()) *
-                    10000)
-                .round() /
-            10000;
 
-    calcValue(inputCurrentBalance, inputMonthlyAddition, inputInterestRateMonth,
-        inputPeriodYear);
-    setState(() {
-      _message = _controllerCurrentBalance.text;
-    });
-  }
-
-  void calcValue(var a, var b, var c, var d) {}
 
   @override
   Widget build(BuildContext context) {
@@ -91,7 +56,7 @@ class _MainPageState extends State<MainPage> {
           appBar: PreferredSize(
             preferredSize: Size.fromHeight(110.0), // here the desired height
             child: AppBar(
-              title: const Text('iCC'),
+              title: const Text('iCC 複利計算',style: TextStyle(fontFamily: "Roboto",)),
               bottom: TabBar(
                 //isScrollable: true,
                 indicatorSize: TabBarIndicatorSize.tab,
@@ -101,140 +66,11 @@ class _MainPageState extends State<MainPage> {
           ),
           body: SafeArea(
             child: TabBarView(children: <Widget>[
-              GestureDetector(
-                onTap: () {
-                  _currentBalanceFocusNode.unfocus();
-                  _monthlyAdditionFocusNode.unfocus();
-                  _interestRateYearFocusNode.unfocus();
-                  _periodYearFocusNode.unfocus();
-                },
-                child: Card(
-                  margin: EdgeInsets.all(10.0),
-                  child: SingleChildScrollView(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.max,
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: <Widget>[
-                        Padding(
-                          padding: EdgeInsets.fromLTRB(20.0, 10.0, 25.0, 10.0),
-                          child: TextFormField(
-                            decoration: InputDecoration(
-                              labelText: "元本（万円）",
-                              hintText: "数値で入力してください",
-                              icon: Icon(Icons.attach_money),
-                              fillColor: Colors.blueAccent,
-                              border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10.0)),
-                            ),
-                            controller: _controllerCurrentBalance,
-                            keyboardType: TextInputType.number,
-                            focusNode: _currentBalanceFocusNode,
-                            style: TextStyle(
-                                fontSize: 16.0,
-                                height: 0.8,
-                                color: Colors.blueAccent,
-                                fontWeight: FontWeight.w400,
-                                fontFamily: "Roboto"),
-                          ),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.fromLTRB(20.0, 5.0, 25.0, 10.0),
-                          child: TextFormField(
-                            decoration: InputDecoration(
-                              labelText: "積立金額（万円）",
-                              hintText: "数値で入力してください",
-                              icon: Icon(Icons.add_circle_outline),
-                              fillColor: Colors.blueAccent,
-                              border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10.0)),
-                            ),
-                            controller: _controllerMonthlyAddition,
-                            keyboardType: TextInputType.number,
-                            focusNode: _monthlyAdditionFocusNode,
-                            style: TextStyle(
-                                fontSize: 16.0,
-                                height: 0.8,
-                                color: Colors.blueAccent,
-                                fontWeight: FontWeight.w400,
-                                fontFamily: "Roboto"),
-                          ),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.fromLTRB(20.0, 5.0, 25.0, 10.0),
-                          child: TextFormField(
-                            decoration: InputDecoration(
-                              labelText: "年利（％）",
-                              hintText: "数値で入力してください",
-                              icon: Icon(Icons.cached),
-                              fillColor: Colors.blueAccent,
-                              border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10.0)),
-                            ),
-                            controller: _controllerInterestRateYear,
-                            keyboardType: TextInputType.number,
-                            focusNode: _interestRateYearFocusNode,
-                            style: TextStyle(
-                                fontSize: 16.0,
-                                height: 0.8,
-                                color: Colors.blueAccent,
-                                fontWeight: FontWeight.w400,
-                                fontFamily: "Roboto"),
-                          ),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.fromLTRB(20.0, 5.0, 25.0, 10.0),
-                          child: TextFormField(
-                            decoration: InputDecoration(
-                              labelText: "投資期間（年）",
-                              hintText: "数値で入力してください",
-                              icon: Icon(Icons.schedule),
-                              fillColor: Colors.blueAccent,
-                              border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10.0)),
-                            ),
-                            controller: _controllerPeriodYear,
-                            keyboardType: TextInputType.number,
-                            focusNode: _periodYearFocusNode,
-                            style: TextStyle(
-                                fontSize: 16.0,
-                                height: 0.8,
-                                color: Colors.blueAccent,
-                                fontWeight: FontWeight.w400,
-                                fontFamily: "Roboto"),
-                          ),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.fromLTRB(25.0, 5.0, 25.0, 10.0),
-                          child: FlatButton(
-                            padding: EdgeInsets.all(15.0),
-                            color: Colors.blueAccent,
-                            shape: RoundedRectangleBorder(
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(10.0)),
-                            ),
-                            child: Text(
-                              "複利計算",
-                              style: TextStyle(
-                                  fontSize: 18.0,
-                                  height: 1.3,
-                                  fontWeight: FontWeight.w400,
-                                  fontFamily: "Roboto",
-                                  color: Colors.white),
-                            ),
-                            onPressed: buttonPressed,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-              TabPage(title: 'Graph', icon: Icons.trending_up),
-              TabPage(title: 'Table', icon: Icons.view_list),
               FormKeyboardActions(
                 child: Content(),
               ),
+              TabPage(title: 'Graph', icon: Icons.trending_up),
+              TabPage(title: 'Table', icon: Icons.view_list),
             ]),
           ),
           drawer: Drawer(child: ListView())),
@@ -281,7 +117,7 @@ class _ContentState extends State<Content> {
 
 
   var _message;
-  
+
   final d = Decimal.tryParse;
 
   //入力項目のコントローラ
@@ -460,7 +296,7 @@ class _ContentState extends State<Content> {
                     "複利計算",
                     style: TextStyle(
                         fontSize: 18.0,
-                        height: 1.3,
+                        height: 1.25,
                         fontWeight: FontWeight.w400,
                         fontFamily: "Roboto",
                         color: Colors.white),
