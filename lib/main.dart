@@ -50,6 +50,8 @@ class _MainPageState extends State<MainPage> {
   String _inputInterestRateYear;
   String _inputPeriodYear;
 
+  String _outputFinalValue;
+
   final d = Decimal.tryParse;
 
   //入力項目のコントローラ
@@ -83,23 +85,23 @@ class _MainPageState extends State<MainPage> {
 
   void buttonPressed() {
     //big decimal で受け取る。が、Doubleで計算しちゃう。。
-//    var inputCurrentBalance = d(_controllerCurrentBalance.text);
-//    var inputMonthlyAddition = d(_controllerMonthlyAddition.text);
-//    var inputInterestRateYear = d(_controllerInterestRateYear.text);
-//    var inputPeriodYear = d(_controllerPeriodYear.text);
-//    var inputInterestRateYearNum =
-//    d((inputInterestRateYear.toDouble() / 100 + 1).toString());
-//    var inputInterestRateMonth =
-//        (pow(inputInterestRateYearNum.toDouble(), d('0.0833333').toDouble()) *
-//            10000)
-//            .round() /
-//            10000;
+/*    var inputCurrentBalance = d(_inputCurrentBalance);
+    var inputMonthlyAddition = d(_inputMonthlyAddition);
+    var inputInterestRateYear = d(_inputInterestRateYear);
+    var inputPeriodYear = d(_inputPeriodYear);
+    var inputInterestRateYearNum =
+    d((inputInterestRateYear.toDouble() / 100 + 1).toString());
+    var inputInterestRateMonth =
+        (pow(inputInterestRateYearNum.toDouble(), d('0.0833333').toDouble()) *
+            10000)
+            .round() /
+            10000;
 
-//    calcValue(inputCurrentBalance, inputMonthlyAddition, inputInterestRateMonth,
-//        inputPeriodYear);
-
+    calcValue(inputCurrentBalance, inputMonthlyAddition, inputInterestRateMonth,
+        inputPeriodYear);
+*/
     setState(() {
-      _inputCurrentBalance = _controllerCurrentBalance.text;
+      _outputFinalValue = _controllerCurrentBalance.text;
     });
   }
 
@@ -108,6 +110,7 @@ class _MainPageState extends State<MainPage> {
   @override
   void initState() {
     _inputCurrentBalance = 'OK';
+    _outputFinalValue = 'NG';
     super.initState();
   }
 
@@ -298,7 +301,7 @@ class _MainPageState extends State<MainPage> {
                         Padding(
                           padding: EdgeInsets.fromLTRB(25.0, 5.0, 25.0, 10.0),
                           child: Text(
-                            "投資総額：" + _inputCurrentBalance + "万円",
+                            "投資総額：" + _outputFinalValue + "万円",
                             style: TextStyle(
                               fontSize: 28.0,
                               fontWeight: FontWeight.w600,
