@@ -32,8 +32,6 @@ class MainPage extends StatefulWidget {
 }
 
 class _MainPageState extends State<MainPage> {
-
-
   final _tab = <Tab>[
     Tab(text: 'Input', icon: Icon(Icons.attach_money)),
     Tab(text: 'Graph', icon: Icon(Icons.trending_up)),
@@ -45,35 +43,50 @@ class _MainPageState extends State<MainPage> {
     super.initState();
   }
 
-
+  var _controllerCurrentBalance = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
       length: _tab.length,
       child: Scaffold(
-          resizeToAvoidBottomInset: false, // キーボード出現によるWidget高さ自動調整をオフ
-          appBar: PreferredSize(
-            preferredSize: Size.fromHeight(110.0), // here the desired height
-            child: AppBar(
-              title: const Text('iCC 複利計算',style: TextStyle(fontFamily: "Roboto",)),
-              bottom: TabBar(
-                //isScrollable: true,
-                indicatorSize: TabBarIndicatorSize.tab,
-                tabs: _tab,
-              ),
+        resizeToAvoidBottomInset: false, // キーボード出現によるWidget高さ自動調整をオフ
+        appBar: PreferredSize(
+          preferredSize: Size.fromHeight(110.0), // here the desired height
+          child: AppBar(
+            title: const Text('iCC 複利計算',
+                style: TextStyle(
+                  fontFamily: "Roboto",
+                  fontWeight: FontWeight.w600,
+                )),
+            bottom: TabBar(
+              //isScrollable: true,
+              indicatorSize: TabBarIndicatorSize.tab,
+              tabs: _tab,
             ),
           ),
-          body: SafeArea(
-            child: TabBarView(children: <Widget>[
-              FormKeyboardActions(
-                child: Content(),
-              ),
-              TabPage(title: 'Graph', icon: Icons.trending_up),
-              TabPage(title: 'Table', icon: Icons.view_list),
-            ]),
-          ),
-          drawer: Drawer(child: ListView())),
+        ),
+        body: SafeArea(
+          child: TabBarView(children: <Widget>[
+            FormKeyboardActions(
+              child: Content(controllerCurrentBalance: _controllerCurrentBalance),
+            ),
+            TabPage(title: 'Graph', icon: Icons.trending_up),
+            TabPage(title: 'Table', icon: Icons.view_list),
+          ]),
+        ),
+        drawer: Drawer(child: ListView()),
+        floatingActionButton: FloatingActionButton.extended(
+          onPressed: () {},
+          icon: new Icon(Icons.done),
+          label: Text("数値をクリアする",
+              style: TextStyle(
+                fontFamily: "Roboto",
+                fontWeight: FontWeight.w600,
+              )),
+        ),
+        floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      ),
     );
   }
 }
@@ -106,25 +119,27 @@ class TabPage extends StatelessWidget {
 class Content extends StatefulWidget {
   @override
   _ContentState createState() => _ContentState();
+
+  final TextEditingController controllerCurrentBalance;
+  Content({this.controllerCurrentBalance});
+
 }
 
 class _ContentState extends State<Content> {
-  final FocusNode _nodeText1 = FocusNode();
   final FocusNode _currentBalanceFocusNode = FocusNode();
   final FocusNode _monthlyAdditionFocusNode = FocusNode();
   final FocusNode _interestRateYearFocusNode = FocusNode();
   final FocusNode _periodYearFocusNode = FocusNode();
 
-
-  var _message;
+  String _message;
 
   final d = Decimal.tryParse;
 
   //入力項目のコントローラ
-  final _controllerCurrentBalance = TextEditingController();
-  final _controllerMonthlyAddition = TextEditingController();
-  final _controllerInterestRateYear = TextEditingController();
-  final _controllerPeriodYear = TextEditingController();
+
+  var _controllerMonthlyAddition = TextEditingController();
+  var _controllerInterestRateYear = TextEditingController();
+  var _controllerPeriodYear = TextEditingController();
 
   KeyboardActionsConfig _buildConfig(BuildContext context) {
     return KeyboardActionsConfig(
@@ -150,6 +165,7 @@ class _ContentState extends State<Content> {
 
   @override
   void initState() {
+    _message = 'OK';
     // Configure keyboard actions
     FormKeyboardActions.setKeyboardActions(context, _buildConfig(context));
     super.initState();
@@ -157,27 +173,27 @@ class _ContentState extends State<Content> {
 
   void buttonPressed() {
     //big decimal で受け取る。が、Doubleで計算しちゃう。。
-    var inputCurrentBalance = d(_controllerCurrentBalance.text);
-    var inputMonthlyAddition = d(_controllerMonthlyAddition.text);
-    var inputInterestRateYear = d(_controllerInterestRateYear.text);
-    var inputPeriodYear = d(_controllerPeriodYear.text);
-    var inputInterestRateYearNum =
-    d((inputInterestRateYear.toDouble() / 100 + 1).toString());
-    var inputInterestRateMonth =
-        (pow(inputInterestRateYearNum.toDouble(), d('0.0833333').toDouble()) *
-            10000)
-            .round() /
-            10000;
+//    var inputCurrentBalance = d(_controllerCurrentBalance.text);
+//    var inputMonthlyAddition = d(_controllerMonthlyAddition.text);
+//    var inputInterestRateYear = d(_controllerInterestRateYear.text);
+//    var inputPeriodYear = d(_controllerPeriodYear.text);
+//    var inputInterestRateYearNum =
+//    d((inputInterestRateYear.toDouble() / 100 + 1).toString());
+//    var inputInterestRateMonth =
+//        (pow(inputInterestRateYearNum.toDouble(), d('0.0833333').toDouble()) *
+//            10000)
+//            .round() /
+//            10000;
 
-    calcValue(inputCurrentBalance, inputMonthlyAddition, inputInterestRateMonth,
-        inputPeriodYear);
+//    calcValue(inputCurrentBalance, inputMonthlyAddition, inputInterestRateMonth,
+//        inputPeriodYear);
+
     setState(() {
-      _message = _controllerCurrentBalance.text;
+      _message = controllerCurrentBalance.text;
     });
   }
 
   void calcValue(var a, var b, var c, var d) {}
-
 
   @override
   Widget build(BuildContext context) {
@@ -198,7 +214,7 @@ class _ContentState extends State<Content> {
             children: <Widget>[
               Padding(
                 padding: EdgeInsets.fromLTRB(20.0, 10.0, 25.0, 10.0),
-                child: TextFormField(
+                child: TextField(
                   decoration: InputDecoration(
                     labelText: "元本（万円）",
                     hintText: "数値で入力してください",
@@ -207,7 +223,7 @@ class _ContentState extends State<Content> {
                     border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10.0)),
                   ),
-                  //controller: _controllerCurrentBalance,
+                  controller: _controllerCurrentBalance,
                   keyboardType: TextInputType.number,
                   focusNode: _currentBalanceFocusNode,
                   style: TextStyle(
@@ -216,6 +232,11 @@ class _ContentState extends State<Content> {
                       color: Colors.blueAccent,
                       fontWeight: FontWeight.w400,
                       fontFamily: "Roboto"),
+                  onChanged: (controller) {
+                    setState(() {
+                      _message = _controllerCurrentBalance.text;
+                    });
+                  },
                 ),
               ),
               Padding(
@@ -229,7 +250,7 @@ class _ContentState extends State<Content> {
                     border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10.0)),
                   ),
-                  //controller: _controllerMonthlyAddition,
+                  controller: _controllerMonthlyAddition,
                   keyboardType: TextInputType.number,
                   focusNode: _monthlyAdditionFocusNode,
                   style: TextStyle(
@@ -251,7 +272,7 @@ class _ContentState extends State<Content> {
                     border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10.0)),
                   ),
-                  //controller: _controllerInterestRateYear,
+                  controller: _controllerInterestRateYear,
                   keyboardType: TextInputType.number,
                   focusNode: _interestRateYearFocusNode,
                   style: TextStyle(
@@ -273,7 +294,7 @@ class _ContentState extends State<Content> {
                     border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10.0)),
                   ),
-                  //controller: _controllerPeriodYear,
+                  controller: _controllerPeriodYear,
                   keyboardType: TextInputType.number,
                   focusNode: _periodYearFocusNode,
                   style: TextStyle(
@@ -295,15 +316,25 @@ class _ContentState extends State<Content> {
                   child: Text(
                     "複利計算",
                     style: TextStyle(
-                        fontSize: 18.0,
-                        height: 1.25,
-                        fontWeight: FontWeight.w400,
+                        fontSize: 19.0,
+                        height: 1.2,
+                        fontWeight: FontWeight.w600,
                         fontFamily: "Roboto",
                         color: Colors.white),
                   ),
                   onPressed: buttonPressed,
                 ),
               ),
+              Padding(
+                padding: EdgeInsets.fromLTRB(25.0, 5.0, 25.0, 10.0),
+                child: Text(
+                  _message,
+                  style: TextStyle(
+                    fontSize: 32.0,
+                    fontWeight: FontWeight.w400,
+                  ),
+                ),
+              )
             ],
           ),
         ),
