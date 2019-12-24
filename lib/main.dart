@@ -17,8 +17,8 @@ class MyApp extends StatelessWidget {
       title: 'Generated App',
       theme: new ThemeData(
         primarySwatch: Colors.blue,
-        primaryColor: const Color(0xFF2196f3),
-        accentColor: const Color(0xFF2196f3),
+        primaryColor: const Color(0xFF448AFF),
+        accentColor: const Color(0xFF448AFF),
         canvasColor: const Color(0xFFfafafa),
       ),
       home: new MainPage(),
@@ -52,6 +52,8 @@ class _MainPageState extends State<MainPage> {
 
   String _outputFinalValue;
 
+  //bool _active false;
+
   final d = Decimal.tryParse;
 
   //入力項目のコントローラ
@@ -60,6 +62,9 @@ class _MainPageState extends State<MainPage> {
   var _controllerMonthlyAddition = TextEditingController();
   var _controllerInterestRateYear = TextEditingController();
   var _controllerPeriodYear = TextEditingController();
+
+  //List<String> valueList = ['1ヶ月ごと', '2ヶ月ごと', '6ヶ月ごと', '12ヶ月ごと'];
+  String _value;
 
   KeyboardActionsConfig _buildConfig(BuildContext context) {
     return KeyboardActionsConfig(
@@ -100,8 +105,11 @@ class _MainPageState extends State<MainPage> {
     calcValue(inputCurrentBalance, inputMonthlyAddition, inputInterestRateMonth,
         inputPeriodYear);
 */
-    setState(() {
-      _outputFinalValue = _controllerCurrentBalance.text;
+    this.setState(() {
+      _controllerCurrentBalance.clear();
+      _controllerMonthlyAddition.clear();
+      _controllerInterestRateYear.clear();
+      _controllerPeriodYear.clear();
     });
   }
 
@@ -160,7 +168,10 @@ class _MainPageState extends State<MainPage> {
                             decoration: InputDecoration(
                               labelText: "元本（万円）",
                               hintText: "数値で入力してください",
-                              icon: Icon(Icons.attach_money),
+                              icon: Icon(
+                                Icons.attach_money,
+                                size: 35.0,
+                              ),
                               fillColor: Colors.blueAccent,
                               border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(10.0)),
@@ -175,7 +186,7 @@ class _MainPageState extends State<MainPage> {
                                 fontSize: 16.0,
                                 height: 0.8,
                                 color: Colors.blueAccent,
-                                fontWeight: FontWeight.w400,
+                                fontWeight: FontWeight.w600,
                                 fontFamily: "Roboto"),
                             onChanged: (controller) {
                               setState(() {
@@ -191,7 +202,10 @@ class _MainPageState extends State<MainPage> {
                             decoration: InputDecoration(
                               labelText: "積立金額（万円）",
                               hintText: "数値で入力してください",
-                              icon: Icon(Icons.add_circle_outline),
+                              icon: Icon(
+                                Icons.add_circle_outline,
+                                size: 35.0,
+                              ),
                               fillColor: Colors.blueAccent,
                               border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(10.0)),
@@ -206,7 +220,7 @@ class _MainPageState extends State<MainPage> {
                                 fontSize: 16.0,
                                 height: 0.8,
                                 color: Colors.blueAccent,
-                                fontWeight: FontWeight.w400,
+                                fontWeight: FontWeight.w600,
                                 fontFamily: "Roboto"),
                             onChanged: (controller) {
                               setState(() {
@@ -222,7 +236,10 @@ class _MainPageState extends State<MainPage> {
                             decoration: InputDecoration(
                               labelText: "年利（％）",
                               hintText: "数値で入力してください",
-                              icon: Icon(Icons.cached),
+                              icon: Icon(
+                                Icons.cached,
+                                size: 35.0,
+                              ),
                               fillColor: Colors.blueAccent,
                               border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(10.0)),
@@ -237,7 +254,7 @@ class _MainPageState extends State<MainPage> {
                                 fontSize: 16.0,
                                 height: 0.8,
                                 color: Colors.blueAccent,
-                                fontWeight: FontWeight.w400,
+                                fontWeight: FontWeight.w600,
                                 fontFamily: "Roboto"),
                             onChanged: (controller) {
                               setState(() {
@@ -253,8 +270,12 @@ class _MainPageState extends State<MainPage> {
                             decoration: InputDecoration(
                               labelText: "投資期間（年）",
                               hintText: "数値で入力してください",
-                              icon: Icon(Icons.schedule),
+                              icon: Icon(
+                                Icons.schedule,
+                                size: 35.0,
+                              ),
                               fillColor: Colors.blueAccent,
+                              hoverColor: Colors.blueAccent,
                               border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(10.0)),
                               counterText: "",
@@ -268,7 +289,7 @@ class _MainPageState extends State<MainPage> {
                                 fontSize: 16.0,
                                 height: 0.8,
                                 color: Colors.blueAccent,
-                                fontWeight: FontWeight.w400,
+                                fontWeight: FontWeight.w600,
                                 fontFamily: "Roboto"),
                             onChanged: (controller) {
                               setState(() {
@@ -279,31 +300,85 @@ class _MainPageState extends State<MainPage> {
                         ),
                         Padding(
                           padding: EdgeInsets.fromLTRB(25.0, 5.0, 25.0, 10.0),
-                          child: FlatButton(
-                            padding: EdgeInsets.all(15.0),
-                            color: Colors.blueAccent,
-                            shape: RoundedRectangleBorder(
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(10.0)),
+                          child: Row(children: <Widget>[
+                            Expanded(
+                              flex: 2,
+                              child: Text(
+                                "積立タイプ",
+                                style: TextStyle(
+                                    fontSize: 19.0,
+                                    fontWeight: FontWeight.w600,
+                                    fontFamily: "Roboto",
+                                    color: Colors.black54),
+                              ),
                             ),
-                            child: Text(
-                              "複利計算",
-                              style: TextStyle(
-                                  fontSize: 19.0,
-                                  height: 1.2,
-                                  fontWeight: FontWeight.w600,
-                                  fontFamily: "Roboto",
-                                  color: Colors.white),
+                            Expanded(
+                              flex: 2,
+                              child: DropdownButton(
+                                value: _value,
+                                items: [
+                                  DropdownMenuItem(
+                                    value: "1",
+                                    child: Text(
+                                      "1ヶ月ごと",
+                                      style: TextStyle(
+                                          fontSize: 19.0,
+                                          fontWeight: FontWeight.w600,
+                                          fontFamily: "Roboto",
+                                          color: Colors.black54),
+                                    ),
+                                  ),
+                                  DropdownMenuItem(
+                                    value: "2",
+                                    child: Text(
+                                      "2ヶ月ごと",
+                                      style: TextStyle(
+                                          fontSize: 19.0,
+                                          fontWeight: FontWeight.w600,
+                                          fontFamily: "Roboto",
+                                          color: Colors.black54),
+                                    ),
+                                  ),
+                                  DropdownMenuItem(
+                                    value: "6",
+                                    child: Text(
+                                      "6ヶ月ごと",
+                                      style: TextStyle(
+                                          fontSize: 19.0,
+                                          fontWeight: FontWeight.w600,
+                                          fontFamily: "Roboto",
+                                          color: Colors.black54),
+                                    ),
+                                  ),
+                                  DropdownMenuItem(
+                                    value: "12",
+                                    child: Text(
+                                      "12ヶ月ごと",
+                                      style: TextStyle(
+                                          fontSize: 19.0,
+                                          fontWeight: FontWeight.w600,
+                                          fontFamily: "Roboto",
+                                          color: Colors.black54),
+                                    ),
+                                  ),
+                                ],
+                                onChanged: (value) {
+                                  setState(() {
+                                    _value = value;
+                                  });
+                                },
+                                iconEnabledColor: Colors.blueAccent,
+
+                              ),
                             ),
-                            onPressed: buttonPressed,
-                          ),
+                          ]),
                         ),
                         Padding(
                           padding: EdgeInsets.fromLTRB(25.0, 5.0, 25.0, 10.0),
                           child: Text(
                             "投資総額：" + _outputFinalValue + "万円",
                             style: TextStyle(
-                              fontSize: 28.0,
+                              fontSize: 26.0,
                               fontWeight: FontWeight.w600,
                               fontFamily: "Roboto",
                             ),
@@ -314,7 +389,18 @@ class _MainPageState extends State<MainPage> {
                           child: Text(
                             "最終金額：" + _inputCurrentBalance + "万円",
                             style: TextStyle(
-                              fontSize: 28.0,
+                              fontSize: 26.0,
+                              fontWeight: FontWeight.w600,
+                              fontFamily: "Roboto",
+                            ),
+                          ),
+                        ),
+                        Padding(
+                          padding: EdgeInsets.fromLTRB(25.0, 5.0, 25.0, 10.0),
+                          child: Text(
+                            "増加率　：" + _inputCurrentBalance + "％",
+                            style: TextStyle(
+                              fontSize: 26.0,
                               fontWeight: FontWeight.w600,
                               fontFamily: "Roboto",
                             ),
@@ -322,15 +408,35 @@ class _MainPageState extends State<MainPage> {
                         ),
                         Padding(
                           padding: EdgeInsets.fromLTRB(25.0, 5.0, 25.0, 70.0),
-                          child: Text(
-                            "増加率　：" + _inputCurrentBalance + "％",
-                            style: TextStyle(
-                              fontSize: 28.0,
-                              fontWeight: FontWeight.w600,
-                              fontFamily: "Roboto",
+                          child: RaisedButton.icon(
+                            highlightElevation: 16.0,
+                            highlightColor: Colors.orangeAccent,
+                            splashColor: Colors.purple,
+                            icon: Icon(
+                              Icons.restore_from_trash,
+                              color: Colors.blueGrey,
+                              size: 45.0,
                             ),
+                            label: Text(
+                              "数値をクリアする",
+                              style: TextStyle(
+                                  fontSize: 19.0,
+                                  fontWeight: FontWeight.w600,
+                                  fontFamily: "Roboto",
+                                  color: Colors.blueGrey),
+                            ),
+                            color: Colors.white,
+                            shape: Border(
+                              top: BorderSide(color: Colors.red, width: 1.5),
+                              left: BorderSide(color: Colors.blue, width: 1.5),
+                              right:
+                                  BorderSide(color: Colors.yellow, width: 1.5),
+                              bottom:
+                                  BorderSide(color: Colors.green, width: 1.5),
+                            ),
+                            onPressed: buttonPressed,
                           ),
-                        )
+                        ),
                       ],
                     ),
                   ),
@@ -342,23 +448,21 @@ class _MainPageState extends State<MainPage> {
           ]),
         ),
         drawer: Drawer(child: ListView()),
+
         floatingActionButton: FloatingActionButton.extended(
-          onPressed: () {
-            this.setState(() {
-              _controllerCurrentBalance.clear();
-              _controllerMonthlyAddition.clear();
-              _controllerInterestRateYear.clear();
-              _controllerPeriodYear.clear();
-            });
-          },
-          icon: new Icon(Icons.done),
-          label: Text("数値をクリアする",
+          onPressed: buttonPressed,
+          icon: new Icon(
+            Icons.tag_faces,
+            size: 40.0,
+          ),
+          label: Text("GO!",
               style: TextStyle(
                 fontFamily: "Roboto",
                 fontWeight: FontWeight.w600,
+                fontSize: 35.0,
               )),
         ),
-        floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+        floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       ),
     );
   }
