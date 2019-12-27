@@ -6,9 +6,8 @@ import 'dart:math';
 import 'package:flutter/cupertino.dart';
 import 'package:keyboard_actions/keyboard_actions.dart';
 
-void main() {
-  runApp(new MyApp());
-}
+void main() => runApp(new MyApp());
+
 
 class MyApp extends StatelessWidget {
   @override
@@ -34,22 +33,45 @@ class MainPage extends StatefulWidget {
 }
 
 class _MainPageState extends State<MainPage> {
+
   final _tab = <Tab>[
     Tab(text: 'Input', icon: Icon(Icons.attach_money)),
     Tab(text: 'Graph', icon: Icon(Icons.trending_up)),
     Tab(text: 'Table', icon: Icon(Icons.view_list)),
   ];
 
-  final FocusNode _currentBalanceFocusNode = FocusNode();
-  final FocusNode _monthlyAdditionFocusNode = FocusNode();
-  final FocusNode _interestRateYearFocusNode = FocusNode();
-  final FocusNode _periodYearFocusNode = FocusNode();
+  //FocusNode
+  final FocusNode _currentBalanceFocusNode = FocusNode();           //入力項目：元本（万円）
+  final FocusNode _monthlyAdditionFocusNode = FocusNode();          //入力項目：積立金額（万円）
+  final FocusNode _interestRateYearFocusNode = FocusNode();         //入力項目：年利（％）
+  final FocusNode _periodYearFocusNode = FocusNode();               //入力項目：投資期間（年）
 
-  String _inputCurrentBalance;
-  String _inputMonthlyAddition;
-  String _inputInterestRateYear;
-  String _inputPeriodYear;
 
+  //入力項目のコントローラ
+  var _controllerCurrentBalance = TextEditingController();          //入力項目：元本（万円）
+  var _controllerMonthlyAddition = TextEditingController();         //入力項目：積立金額（万円）
+  var _controllerInterestRateYear = TextEditingController();        //入力項目：年利（％）
+  var _controllerPeriodYear = TextEditingController();              //入力項目：投資期間（年）
+
+
+  //onChanged時、コントローラ => テキストで受けるインスタンス　
+  String _inputCurrentBalance;                                      //入力項目：元本（万円）
+  String _inputMonthlyAddition;                                     //入力項目：積立金額（万円）
+  String _inputInterestRateYear;                                    //入力項目：年利（％）
+  String _inputPeriodYear;                                          //入力項目：投資期間（年）
+
+
+  //onSubmitted時、テキスト => Decimalで受けるインスタンス
+  Decimal inputCurrentBalance ;                                     //入力項目：元本（万円）
+  Decimal inputMonthlyAddition;                                     //入力項目：積立金額（万円）
+  Decimal inputInterestRateYear;                                    //入力項目：年利（％）
+  Decimal inputPeriodYear;                                          //入力項目：投資期間（年）
+
+  Decimal inputInterestRateYearActualNumber;                        //年利（実数）
+  Decimal inputInterestRateMonthActualNumber;                       //月利（実数）
+
+
+  //試験的に使ってみる変数たち
   String _outputFinalValue;
 
   //bool _active false;
@@ -57,16 +79,13 @@ class _MainPageState extends State<MainPage> {
   final d = Decimal.tryParse;
 
 
-  //入力項目のコントローラ
-
-  var _controllerCurrentBalance = TextEditingController();
-  var _controllerMonthlyAddition = TextEditingController();
-  var _controllerInterestRateYear = TextEditingController();
-  var _controllerPeriodYear = TextEditingController();
 
   //List<String> valueList = ['1ヶ月ごと', '2ヶ月ごと', '6ヶ月ごと', '12ヶ月ごと'];
   String _additionalType = "1";
 
+
+
+  //KeyboardActionsConfig
   KeyboardActionsConfig _buildConfig(BuildContext context) {
     return KeyboardActionsConfig(
       keyboardActionsPlatform: KeyboardActionsPlatform.ALL,
@@ -89,28 +108,30 @@ class _MainPageState extends State<MainPage> {
     );
   }
 
+
+
+
+
   void buttonPressed() {
     //big decimal に変換。
-    var inputCurrentBalance = Decimal.parse(_inputCurrentBalance);
-    var inputMonthlyAddition = Decimal.parse(_inputMonthlyAddition);
-    var inputInterestRateYear = Decimal.parse(_inputInterestRateYear);
-    var inputPeriodYear = Decimal.parse(_inputPeriodYear);
 
-    var inputInterestRateYearNum = inputInterestRateYear / Decimal.fromInt(100) + Decimal.fromInt(1);
 
-    var inputInterestRateMonth = ((pow(inputInterestRateYearNum.toDouble(),double.parse('0.0833333'))*10000).round() /10000);
+
+
+
+
     /*
 
-    var inputInterestRateYearNum =
+    var inputInterestRateYearActualNumber =
     d((inputInterestRateYear.toDouble() / 100 + 1).toString());
-    var inputInterestRateMonth =
-        (pow(inputInterestRateYearNum.toDouble(), d('0.0833333').toDouble()) *
+    var inputInterestRateMonthActualNumber =
+        (pow(inputInterestRateYearActualNumber.toDouble(), d('0.0833333').toDouble()) *
             10000)
             .round() /
             10000;
 */
 
-    calcValue(inputCurrentBalance, inputMonthlyAddition, inputInterestRateMonth,inputPeriodYear);
+    calcValue(inputCurrentBalance, inputMonthlyAddition, inputInterestRateMonthActualNumber,inputPeriodYear);
 
     this.setState(() {
       _controllerCurrentBalance.clear();
@@ -120,7 +141,7 @@ class _MainPageState extends State<MainPage> {
     });
   }
 
-  void calcValue(Decimal a, Decimal b, double c, Decimal d) {
+  void calcValue(Decimal a, Decimal b, Decimal c, Decimal d) {
 
     /*ここに計算を書く*/
 
@@ -221,6 +242,11 @@ class _MainPageState extends State<MainPage> {
                                     _controllerCurrentBalance.text;
                               });
                             },
+                            onSubmitted: (controller) {
+                              setState(() {
+                                inputCurrentBalance = Decimal.parse(_inputCurrentBalance);
+                              });
+                            },
                           ),
                         ),
                         Padding(
@@ -253,6 +279,11 @@ class _MainPageState extends State<MainPage> {
                               setState(() {
                                 _inputMonthlyAddition =
                                     _controllerMonthlyAddition.text;
+                              });
+                            },
+                            onSubmitted: (controller) {
+                              setState(() {
+                                inputMonthlyAddition = Decimal.parse(_inputMonthlyAddition);
                               });
                             },
                           ),
@@ -289,6 +320,13 @@ class _MainPageState extends State<MainPage> {
                                     _controllerInterestRateYear.text;
                               });
                             },
+                            onSubmitted: (controller) {
+                              setState(() {
+                                inputInterestRateYear = Decimal.parse(_inputInterestRateYear);
+                                inputInterestRateYearActualNumber = inputInterestRateYear / Decimal.fromInt(100) + Decimal.fromInt(1);
+                                inputInterestRateMonthActualNumber = Decimal.parse(((pow(inputInterestRateYearActualNumber.toDouble(),double.parse('0.0833333'))*10000).round() /10000).toString());
+                              });
+                            },
                           ),
                         ),
                         Padding(
@@ -321,6 +359,11 @@ class _MainPageState extends State<MainPage> {
                             onChanged: (controller) {
                               setState(() {
                                 _inputPeriodYear = _controllerPeriodYear.text;
+                              });
+                            },
+                            onSubmitted: (controller) {
+                              setState(() {
+                                inputPeriodYear = Decimal.parse(_inputPeriodYear);
                               });
                             },
                           ),
