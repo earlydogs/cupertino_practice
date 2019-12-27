@@ -56,6 +56,7 @@ class _MainPageState extends State<MainPage> {
 
   final d = Decimal.tryParse;
 
+
   //入力項目のコントローラ
 
   var _controllerCurrentBalance = TextEditingController();
@@ -64,7 +65,7 @@ class _MainPageState extends State<MainPage> {
   var _controllerPeriodYear = TextEditingController();
 
   //List<String> valueList = ['1ヶ月ごと', '2ヶ月ごと', '6ヶ月ごと', '12ヶ月ごと'];
-  String _value;
+  String _additionalType = "1";
 
   KeyboardActionsConfig _buildConfig(BuildContext context) {
     return KeyboardActionsConfig(
@@ -89,11 +90,17 @@ class _MainPageState extends State<MainPage> {
   }
 
   void buttonPressed() {
-    //big decimal で受け取る。が、Doubleで計算しちゃう。。
-/*    var inputCurrentBalance = d(_inputCurrentBalance);
-    var inputMonthlyAddition = d(_inputMonthlyAddition);
-    var inputInterestRateYear = d(_inputInterestRateYear);
-    var inputPeriodYear = d(_inputPeriodYear);
+    //big decimal に変換。
+    var inputCurrentBalance = Decimal.parse(_inputCurrentBalance);
+    var inputMonthlyAddition = Decimal.parse(_inputMonthlyAddition);
+    var inputInterestRateYear = Decimal.parse(_inputInterestRateYear);
+    var inputPeriodYear = Decimal.parse(_inputPeriodYear);
+
+    var inputInterestRateYearNum = inputInterestRateYear / Decimal.fromInt(100) + Decimal.fromInt(1);
+
+    var inputInterestRateMonth = ((pow(inputInterestRateYearNum.toDouble(),double.parse('0.0833333'))*10000).round() /10000);
+    /*
+
     var inputInterestRateYearNum =
     d((inputInterestRateYear.toDouble() / 100 + 1).toString());
     var inputInterestRateMonth =
@@ -101,10 +108,10 @@ class _MainPageState extends State<MainPage> {
             10000)
             .round() /
             10000;
-
-    calcValue(inputCurrentBalance, inputMonthlyAddition, inputInterestRateMonth,
-        inputPeriodYear);
 */
+
+    calcValue(inputCurrentBalance, inputMonthlyAddition, inputInterestRateMonth,inputPeriodYear);
+
     this.setState(() {
       _controllerCurrentBalance.clear();
       _controllerMonthlyAddition.clear();
@@ -113,7 +120,27 @@ class _MainPageState extends State<MainPage> {
     });
   }
 
-  void calcValue(var a, var b, var c, var d) {}
+  void calcValue(Decimal a, Decimal b, double c, Decimal d) {
+
+    /*ここに計算を書く*/
+
+  }
+
+
+
+
+  void allClear(){
+    this.setState(() {
+      _controllerCurrentBalance.clear();
+      _controllerMonthlyAddition.clear();
+      _controllerInterestRateYear.clear();
+      _controllerPeriodYear.clear();
+      this._additionalType = "1";
+    });
+
+
+  }
+
 
   @override
   void initState() {
@@ -315,7 +342,7 @@ class _MainPageState extends State<MainPage> {
                             Expanded(
                               flex: 2,
                               child: DropdownButton(
-                                value: _value,
+                                value: _additionalType,
                                 items: [
                                   DropdownMenuItem(
                                     value: "1",
@@ -364,7 +391,7 @@ class _MainPageState extends State<MainPage> {
                                 ],
                                 onChanged: (value) {
                                   setState(() {
-                                    _value = value;
+                                    _additionalType = value;
                                   });
                                 },
                                 iconEnabledColor: Colors.blueAccent,
@@ -418,7 +445,7 @@ class _MainPageState extends State<MainPage> {
                               size: 45.0,
                             ),
                             label: Text(
-                              "数値をクリアする",
+                              "条件をクリアする",
                               style: TextStyle(
                                   fontSize: 19.0,
                                   fontWeight: FontWeight.w600,
@@ -434,7 +461,7 @@ class _MainPageState extends State<MainPage> {
                               bottom:
                                   BorderSide(color: Colors.green, width: 1.5),
                             ),
-                            onPressed: buttonPressed,
+                            onPressed: allClear,
                           ),
                         ),
                       ],
