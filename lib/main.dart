@@ -8,7 +8,6 @@ import 'package:keyboard_actions/keyboard_actions.dart';
 
 void main() => runApp(new MyApp());
 
-
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -33,7 +32,6 @@ class MainPage extends StatefulWidget {
 }
 
 class _MainPageState extends State<MainPage> {
-
   final _tab = <Tab>[
     Tab(text: 'Input', icon: Icon(Icons.attach_money)),
     Tab(text: 'Graph', icon: Icon(Icons.trending_up)),
@@ -41,35 +39,28 @@ class _MainPageState extends State<MainPage> {
   ];
 
   //FocusNode
-  final FocusNode _currentBalanceFocusNode = FocusNode();           //入力項目：元本（万円）
-  final FocusNode _monthlyAdditionFocusNode = FocusNode();          //入力項目：積立金額（万円）
-  final FocusNode _interestRateYearFocusNode = FocusNode();         //入力項目：年利（％）
-  final FocusNode _periodYearFocusNode = FocusNode();               //入力項目：投資期間（年）
-
+  final FocusNode _currentBalanceFocusNode = FocusNode(); // 入力項目：元本（万円）
+  final FocusNode _monthlyAdditionFocusNode = FocusNode(); // 入力項目：積立金額（万円）
+  final FocusNode _interestRateYearFocusNode = FocusNode(); // 入力項目：年利（％）
+  final FocusNode _periodYearFocusNode = FocusNode(); // 入力項目：投資期間（年）
 
   //入力項目のコントローラ
-  var _controllerCurrentBalance = TextEditingController();          //入力項目：元本（万円）
-  var _controllerMonthlyAddition = TextEditingController();         //入力項目：積立金額（万円）
-  var _controllerInterestRateYear = TextEditingController();        //入力項目：年利（％）
-  var _controllerPeriodYear = TextEditingController();              //入力項目：投資期間（年）
+  var _controllerCurrentBalance = TextEditingController(); // 入力項目：元本（万円）
+  var _controllerMonthlyAddition = TextEditingController(); // 入力項目：積立金額（万円）
+  var _controllerInterestRateYear = TextEditingController(); // 入力項目：年利（％）
+  var _controllerPeriodYear = TextEditingController(); // 入力項目：投資期間（年）
 
+  //onChanged時、コントローラ => Decimalで受けるインスタンス
+  Decimal _inputCurrentBalance; // 入力項目：元本（万円）
+  Decimal _inputMonthlyAddition; // 入力項目：積立金額（万円）
+  Decimal _inputInterestRateYear; // 入力項目：年利（％）
+  Decimal _inputPeriodYear; // 入力項目：投資期間（年）
 
-  //onChanged時、コントローラ => テキストで受けるインスタンス　
-  String _inputCurrentBalance;                                      //入力項目：元本（万円）
-  String _inputMonthlyAddition;                                     //入力項目：積立金額（万円）
-  String _inputInterestRateYear;                                    //入力項目：年利（％）
-  String _inputPeriodYear;                                          //入力項目：投資期間（年）
+  Decimal _inputInterestRateYearActualNumber; // 年利（実数）
+  Decimal _inputInterestRateMonthActualNumber; // 月利（実数）
 
-
-  //onSubmitted時、テキスト => Decimalで受けるインスタンス
-  Decimal inputCurrentBalance ;                                     //入力項目：元本（万円）
-  Decimal inputMonthlyAddition;                                     //入力項目：積立金額（万円）
-  Decimal inputInterestRateYear;                                    //入力項目：年利（％）
-  Decimal inputPeriodYear;                                          //入力項目：投資期間（年）
-
-  Decimal inputInterestRateYearActualNumber;                        //年利（実数）
-  Decimal inputInterestRateMonthActualNumber;                       //月利（実数）
-
+  //積立タイプ
+  String _additionalType; // Xヶ月。文字列。1,2,6,12の４パターン
 
   //試験的に使ってみる変数たち
   String _outputFinalValue;
@@ -78,12 +69,8 @@ class _MainPageState extends State<MainPage> {
 
   final d = Decimal.tryParse;
 
-
-
   //List<String> valueList = ['1ヶ月ごと', '2ヶ月ごと', '6ヶ月ごと', '12ヶ月ごと'];
-  String _additionalType = "1";
-
-
+  //String _additionalType = '1';
 
   //KeyboardActionsConfig
   KeyboardActionsConfig _buildConfig(BuildContext context) {
@@ -108,64 +95,86 @@ class _MainPageState extends State<MainPage> {
     );
   }
 
+  //項目設定メソッド
+  void setDecimalCurrentBalance(String value) {
+    this.setState(() {
+      _inputCurrentBalance = Decimal.parse(_controllerCurrentBalance.text);
+    });
+    print(_inputCurrentBalance);
+  }
 
+  void setDecimalMonthlyAddition(String value) {
+    this.setState(() {
+      _inputMonthlyAddition = Decimal.parse(_controllerMonthlyAddition.text);
+    });
+    print(_inputMonthlyAddition);
+  }
 
+  void setDecimalInterestRateYear(String value) {
+    this.setState(() {
+      _inputInterestRateYear = Decimal.parse(_controllerInterestRateYear.text);
+      _inputInterestRateYearActualNumber =
+          _inputInterestRateYear / Decimal.fromInt(100) + Decimal.fromInt(1);
+      _inputInterestRateMonthActualNumber = Decimal.parse(((pow(
+                          _inputInterestRateYearActualNumber.toDouble(),
+                          double.parse('0.0833333')) *
+                      10000)
+                  .round() /
+              10000)
+          .toString());
+    });
+    print(_inputInterestRateYear);
+    print(_inputInterestRateYearActualNumber);
+    print(_inputInterestRateMonthActualNumber);
+  }
 
+  void setDecimalPeriodYear(String value) {
+    this.setState(() {
+      _inputPeriodYear = Decimal.parse(_controllerPeriodYear.text);
+    });
+    print(_inputPeriodYear);
+  }
 
   void buttonPressed() {
-    //big decimal に変換。
+    print(_inputCurrentBalance);
+    print(_inputMonthlyAddition);
+    print(_inputInterestRateYear);
+    print(_inputInterestRateYearActualNumber);
+    print(_inputInterestRateMonthActualNumber);
+    print(_inputPeriodYear);
+    print(_controllerCurrentBalance.text);
 
-
-
-
-
-
-    /*
-
-    var inputInterestRateYearActualNumber =
-    d((inputInterestRateYear.toDouble() / 100 + 1).toString());
-    var inputInterestRateMonthActualNumber =
-        (pow(inputInterestRateYearActualNumber.toDouble(), d('0.0833333').toDouble()) *
-            10000)
-            .round() /
-            10000;
-*/
-
-    calcValue(inputCurrentBalance, inputMonthlyAddition, inputInterestRateMonthActualNumber,inputPeriodYear);
-
-    this.setState(() {
-      _controllerCurrentBalance.clear();
-      _controllerMonthlyAddition.clear();
-      _controllerInterestRateYear.clear();
-      _controllerPeriodYear.clear();
-    });
+    calcValue(
+      _inputCurrentBalance,
+      _inputMonthlyAddition,
+      _inputInterestRateMonthActualNumber,
+      _inputPeriodYear,
+    );
   }
 
   void calcValue(Decimal a, Decimal b, Decimal c, Decimal d) {
-
     /*ここに計算を書く*/
-
   }
 
-
-
-
-  void allClear(){
+  void allClear() {
     this.setState(() {
       _controllerCurrentBalance.clear();
       _controllerMonthlyAddition.clear();
       _controllerInterestRateYear.clear();
       _controllerPeriodYear.clear();
-      this._additionalType = "1";
+      this._additionalType = '1';
+      this._inputCurrentBalance = null;
+      this._inputMonthlyAddition = null;
+      this._inputInterestRateYear = null;
+      this._inputPeriodYear = null;
+      this._inputInterestRateMonthActualNumber = null;
+      this._inputInterestRateYearActualNumber = null;
     });
-
-
   }
-
 
   @override
   void initState() {
-    _inputCurrentBalance = 'OK';
+    _additionalType = '1';
     _outputFinalValue = 'NG';
     super.initState();
   }
@@ -181,7 +190,7 @@ class _MainPageState extends State<MainPage> {
           child: AppBar(
             title: const Text('iCC 複利計算',
                 style: TextStyle(
-                  fontFamily: "Roboto",
+                  fontFamily: 'Roboto',
                   fontWeight: FontWeight.w600,
                 )),
             bottom: TabBar(
@@ -211,11 +220,25 @@ class _MainPageState extends State<MainPage> {
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: <Widget>[
                         Padding(
+                          padding: EdgeInsets.fromLTRB(0.0, 10.0, 0.0, 0.0),
+                          child: Center(
+                            child: Text(
+                              '計算条件',
+                              style: TextStyle(
+                                fontSize: 14.0,
+                                fontWeight: FontWeight.w600,
+                                fontFamily: 'Roboto',
+                                color: Colors.deepPurpleAccent,
+                              ),
+                            ),
+                          ),
+                        ),
+                        Padding(
                           padding: EdgeInsets.fromLTRB(20.0, 10.0, 25.0, 10.0),
                           child: TextField(
                             decoration: InputDecoration(
-                              labelText: "元本（万円）",
-                              hintText: "数値で入力してください",
+                              labelText: '元本（万円）',
+                              hintText: '数値で入力してください',
                               icon: Icon(
                                 Icons.attach_money,
                                 size: 35.0,
@@ -223,7 +246,7 @@ class _MainPageState extends State<MainPage> {
                               fillColor: Colors.blueAccent,
                               border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(10.0)),
-                              counterText: "",
+                              counterText: '',
                             ),
                             controller: _controllerCurrentBalance,
                             keyboardType: TextInputType.number,
@@ -235,26 +258,16 @@ class _MainPageState extends State<MainPage> {
                                 height: 0.8,
                                 color: Colors.blueAccent,
                                 fontWeight: FontWeight.w600,
-                                fontFamily: "Roboto"),
-                            onChanged: (controller) {
-                              setState(() {
-                                _inputCurrentBalance =
-                                    _controllerCurrentBalance.text;
-                              });
-                            },
-                            onSubmitted: (controller) {
-                              setState(() {
-                                inputCurrentBalance = Decimal.parse(_inputCurrentBalance);
-                              });
-                            },
+                                fontFamily: 'Roboto'),
+                            onChanged: setDecimalCurrentBalance,
                           ),
                         ),
                         Padding(
                           padding: EdgeInsets.fromLTRB(20.0, 5.0, 25.0, 10.0),
                           child: TextField(
                             decoration: InputDecoration(
-                              labelText: "積立金額（万円）",
-                              hintText: "数値で入力してください",
+                              labelText: '積立金額（万円）',
+                              hintText: '数値で入力してください',
                               icon: Icon(
                                 Icons.add_circle_outline,
                                 size: 35.0,
@@ -262,7 +275,7 @@ class _MainPageState extends State<MainPage> {
                               fillColor: Colors.blueAccent,
                               border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(10.0)),
-                              counterText: "",
+                              counterText: '',
                             ),
                             controller: _controllerMonthlyAddition,
                             keyboardType: TextInputType.number,
@@ -274,26 +287,16 @@ class _MainPageState extends State<MainPage> {
                                 height: 0.8,
                                 color: Colors.blueAccent,
                                 fontWeight: FontWeight.w600,
-                                fontFamily: "Roboto"),
-                            onChanged: (controller) {
-                              setState(() {
-                                _inputMonthlyAddition =
-                                    _controllerMonthlyAddition.text;
-                              });
-                            },
-                            onSubmitted: (controller) {
-                              setState(() {
-                                inputMonthlyAddition = Decimal.parse(_inputMonthlyAddition);
-                              });
-                            },
+                                fontFamily: 'Roboto'),
+                            onChanged: setDecimalMonthlyAddition,
                           ),
                         ),
                         Padding(
                           padding: EdgeInsets.fromLTRB(20.0, 5.0, 25.0, 10.0),
                           child: TextField(
                             decoration: InputDecoration(
-                              labelText: "年利（％）",
-                              hintText: "数値で入力してください",
+                              labelText: '年利（％）',
+                              hintText: '数値で入力してください',
                               icon: Icon(
                                 Icons.cached,
                                 size: 35.0,
@@ -301,7 +304,7 @@ class _MainPageState extends State<MainPage> {
                               fillColor: Colors.blueAccent,
                               border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(10.0)),
-                              counterText: "",
+                              counterText: '',
                             ),
                             controller: _controllerInterestRateYear,
                             keyboardType: TextInputType.number,
@@ -313,28 +316,16 @@ class _MainPageState extends State<MainPage> {
                                 height: 0.8,
                                 color: Colors.blueAccent,
                                 fontWeight: FontWeight.w600,
-                                fontFamily: "Roboto"),
-                            onChanged: (controller) {
-                              setState(() {
-                                _inputInterestRateYear =
-                                    _controllerInterestRateYear.text;
-                              });
-                            },
-                            onSubmitted: (controller) {
-                              setState(() {
-                                inputInterestRateYear = Decimal.parse(_inputInterestRateYear);
-                                inputInterestRateYearActualNumber = inputInterestRateYear / Decimal.fromInt(100) + Decimal.fromInt(1);
-                                inputInterestRateMonthActualNumber = Decimal.parse(((pow(inputInterestRateYearActualNumber.toDouble(),double.parse('0.0833333'))*10000).round() /10000).toString());
-                              });
-                            },
+                                fontFamily: 'Roboto'),
+                            onChanged: setDecimalInterestRateYear,
                           ),
                         ),
                         Padding(
                           padding: EdgeInsets.fromLTRB(20.0, 5.0, 25.0, 10.0),
                           child: TextField(
                             decoration: InputDecoration(
-                              labelText: "投資期間（年）",
-                              hintText: "数値で入力してください",
+                              labelText: '投資期間（年）',
+                              hintText: '数値で入力してください',
                               icon: Icon(
                                 Icons.schedule,
                                 size: 35.0,
@@ -343,7 +334,7 @@ class _MainPageState extends State<MainPage> {
                               hoverColor: Colors.blueAccent,
                               border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(10.0)),
-                              counterText: "",
+                              counterText: '',
                             ),
                             controller: _controllerPeriodYear,
                             keyboardType: TextInputType.number,
@@ -355,17 +346,8 @@ class _MainPageState extends State<MainPage> {
                                 height: 0.8,
                                 color: Colors.blueAccent,
                                 fontWeight: FontWeight.w600,
-                                fontFamily: "Roboto"),
-                            onChanged: (controller) {
-                              setState(() {
-                                _inputPeriodYear = _controllerPeriodYear.text;
-                              });
-                            },
-                            onSubmitted: (controller) {
-                              setState(() {
-                                inputPeriodYear = Decimal.parse(_inputPeriodYear);
-                              });
-                            },
+                                fontFamily: 'Roboto'),
+                            onChanged: setDecimalPeriodYear,
                           ),
                         ),
                         Padding(
@@ -374,11 +356,11 @@ class _MainPageState extends State<MainPage> {
                             Expanded(
                               flex: 2,
                               child: Text(
-                                "積立タイプ",
+                                '積立タイプ',
                                 style: TextStyle(
                                     fontSize: 19.0,
                                     fontWeight: FontWeight.w600,
-                                    fontFamily: "Roboto",
+                                    fontFamily: 'Roboto',
                                     color: Colors.black54),
                               ),
                             ),
@@ -388,46 +370,46 @@ class _MainPageState extends State<MainPage> {
                                 value: _additionalType,
                                 items: [
                                   DropdownMenuItem(
-                                    value: "1",
+                                    value: '1',
                                     child: Text(
-                                      "1ヶ月ごと",
+                                      '1ヶ月ごと',
                                       style: TextStyle(
                                           fontSize: 19.0,
                                           fontWeight: FontWeight.w600,
-                                          fontFamily: "Roboto",
+                                          fontFamily: 'Roboto',
                                           color: Colors.black54),
                                     ),
                                   ),
                                   DropdownMenuItem(
-                                    value: "2",
+                                    value: '2',
                                     child: Text(
-                                      "2ヶ月ごと",
+                                      '2ヶ月ごと',
                                       style: TextStyle(
                                           fontSize: 19.0,
                                           fontWeight: FontWeight.w600,
-                                          fontFamily: "Roboto",
+                                          fontFamily: 'Roboto',
                                           color: Colors.black54),
                                     ),
                                   ),
                                   DropdownMenuItem(
-                                    value: "6",
+                                    value: '6',
                                     child: Text(
-                                      "6ヶ月ごと",
+                                      '6ヶ月ごと',
                                       style: TextStyle(
                                           fontSize: 19.0,
                                           fontWeight: FontWeight.w600,
-                                          fontFamily: "Roboto",
+                                          fontFamily: 'Roboto',
                                           color: Colors.black54),
                                     ),
                                   ),
                                   DropdownMenuItem(
-                                    value: "12",
+                                    value: '12',
                                     child: Text(
-                                      "12ヶ月ごと",
+                                      '12ヶ月ごと',
                                       style: TextStyle(
                                           fontSize: 19.0,
                                           fontWeight: FontWeight.w600,
-                                          fontFamily: "Roboto",
+                                          fontFamily: 'Roboto',
                                           color: Colors.black54),
                                     ),
                                   ),
@@ -438,7 +420,6 @@ class _MainPageState extends State<MainPage> {
                                   });
                                 },
                                 iconEnabledColor: Colors.blueAccent,
-
                               ),
                             ),
                           ]),
@@ -446,33 +427,33 @@ class _MainPageState extends State<MainPage> {
                         Padding(
                           padding: EdgeInsets.fromLTRB(25.0, 5.0, 25.0, 10.0),
                           child: Text(
-                            "投資総額：" + _outputFinalValue + "万円",
+                            '投資総額：' + _outputFinalValue + '万円',
                             style: TextStyle(
                               fontSize: 26.0,
                               fontWeight: FontWeight.w600,
-                              fontFamily: "Roboto",
+                              fontFamily: 'Roboto',
                             ),
                           ),
                         ),
                         Padding(
                           padding: EdgeInsets.fromLTRB(25.0, 5.0, 25.0, 10.0),
                           child: Text(
-                            "最終金額：" + _inputCurrentBalance + "万円",
+                            '最終金額：' + _outputFinalValue + '万円',
                             style: TextStyle(
                               fontSize: 26.0,
                               fontWeight: FontWeight.w600,
-                              fontFamily: "Roboto",
+                              fontFamily: 'Roboto',
                             ),
                           ),
                         ),
                         Padding(
                           padding: EdgeInsets.fromLTRB(25.0, 5.0, 25.0, 10.0),
                           child: Text(
-                            "増加率　：" + _inputCurrentBalance + "％",
+                            '増加率　：' + _outputFinalValue + '％',
                             style: TextStyle(
                               fontSize: 26.0,
                               fontWeight: FontWeight.w600,
-                              fontFamily: "Roboto",
+                              fontFamily: 'Roboto',
                             ),
                           ),
                         ),
@@ -488,21 +469,21 @@ class _MainPageState extends State<MainPage> {
                               size: 45.0,
                             ),
                             label: Text(
-                              "条件をクリアする",
+                              '条件をクリアする',
                               style: TextStyle(
                                   fontSize: 19.0,
                                   fontWeight: FontWeight.w600,
-                                  fontFamily: "Roboto",
+                                  fontFamily: 'Roboto',
                                   color: Colors.blueGrey),
                             ),
                             color: Colors.white,
                             shape: Border(
-                              top: BorderSide(color: Colors.red, width: 1.5),
-                              left: BorderSide(color: Colors.blue, width: 1.5),
+                              top: BorderSide(color: Colors.red, width: 2.0),
+                              left: BorderSide(color: Colors.blue, width: 2.0),
                               right:
-                                  BorderSide(color: Colors.yellow, width: 1.5),
+                                  BorderSide(color: Colors.yellow, width: 2.0),
                               bottom:
-                                  BorderSide(color: Colors.green, width: 1.5),
+                                  BorderSide(color: Colors.green, width: 2.0),
                             ),
                             onPressed: allClear,
                           ),
@@ -525,9 +506,9 @@ class _MainPageState extends State<MainPage> {
             Icons.tag_faces,
             size: 40.0,
           ),
-          label: Text("GO!",
+          label: Text('GO!',
               style: TextStyle(
-                fontFamily: "Roboto",
+                fontFamily: 'Roboto',
                 fontWeight: FontWeight.w600,
                 fontSize: 35.0,
               )),
