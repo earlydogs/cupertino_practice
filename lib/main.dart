@@ -1,9 +1,7 @@
-
-
 import 'package:flutter/material.dart';
 import 'package:decimal/decimal.dart';
 import 'dart:math';
-import 'package:flutter/cupertino.dart';
+
 import 'package:keyboard_actions/keyboard_actions.dart';
 
 void main() => runApp(new MyApp());
@@ -65,7 +63,7 @@ class _MainPageState extends State<MainPage> {
   //試験的に使ってみる変数たち
   String _outputFinalValue;
 
-
+  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
   //bool _active false;
 
@@ -144,6 +142,19 @@ class _MainPageState extends State<MainPage> {
         (_controllerInterestRateYear.text == '') ||
         (_controllerPeriodYear.text == '')) {
       print('入力エラー');
+      final snackBarInputError = SnackBar(
+        content: Text('条件を入れてね！'),
+        action: SnackBarAction(
+          label: 'すみません（汗）',
+          onPressed: () {
+            // Some code to undo the change.
+          },
+        ),
+      );
+
+      // Find the Scaffold in the widget tree and use
+      // it to show a SnackBar.
+      _scaffoldKey.currentState.showSnackBar(snackBarInputError);
     } else {
       //メイン処理コール
       calcValueMain();
@@ -252,9 +263,12 @@ class _MainPageState extends State<MainPage> {
     /*ここに計算を書く*/
   }
 
-
   //数値クリア処理
   void allClear() {
+    _currentBalanceFocusNode.unfocus();
+    _monthlyAdditionFocusNode.unfocus();
+    _interestRateYearFocusNode.unfocus();
+    _periodYearFocusNode.unfocus();
     this.setState(() {
       _controllerCurrentBalance.clear();
       _controllerMonthlyAddition.clear();
@@ -268,7 +282,19 @@ class _MainPageState extends State<MainPage> {
       this._inputInterestRateMonthActualNumber = null;
       this._inputInterestRateYearActualNumber = null;
     });
+    final snackBarClear = SnackBar(
+      content: Text('クリアしました！'),
+      action: SnackBarAction(
+        label: 'OK',
+        onPressed: () {
+          // Some code to undo the change.
+        },
+      ),
+    );
 
+    // Find the Scaffold in the widget tree and use
+    // it to show a SnackBar.
+    _scaffoldKey.currentState.showSnackBar(snackBarClear);
   }
 
   @override
@@ -283,6 +309,7 @@ class _MainPageState extends State<MainPage> {
     return DefaultTabController(
       length: _tab.length,
       child: Scaffold(
+        key: _scaffoldKey,
         resizeToAvoidBottomInset: false, // キーボード出現によるWidget高さ自動調整をオフ
         appBar: PreferredSize(
           preferredSize: Size.fromHeight(110.0), // here the desired height
@@ -337,7 +364,14 @@ class _MainPageState extends State<MainPage> {
                           child: TextField(
                             decoration: InputDecoration(
                               labelText: '元本（万円）',
-                              hintText: '数値で入力してください',
+                              hintText: '数値を入力',
+                              hintStyle: TextStyle(color: Colors.grey),
+                              suffixText: '万円',
+                              suffixStyle: TextStyle(
+                                  color: Colors.blueAccent,
+                                  height: 0.8,
+                                  fontWeight: FontWeight.w600,
+                                  fontFamily: 'Roboto'),
                               icon: Icon(
                                 Icons.attach_money,
                                 size: 35.0,
@@ -366,7 +400,14 @@ class _MainPageState extends State<MainPage> {
                           child: TextField(
                             decoration: InputDecoration(
                               labelText: '積立金額（万円）',
-                              hintText: '数値で入力してください',
+                              hintText: '数値を入力',
+                              hintStyle: TextStyle(color: Colors.grey),
+                              suffixText: '万円',
+                              suffixStyle: TextStyle(
+                                  color: Colors.blueAccent,
+                                  height: 0.8,
+                                  fontWeight: FontWeight.w600,
+                                  fontFamily: 'Roboto'),
                               icon: Icon(
                                 Icons.add_circle_outline,
                                 size: 35.0,
@@ -395,7 +436,14 @@ class _MainPageState extends State<MainPage> {
                           child: TextField(
                             decoration: InputDecoration(
                               labelText: '年利（％）',
-                              hintText: '数値で入力してください',
+                              hintText: '数値を入力',
+                              hintStyle: TextStyle(color: Colors.grey),
+                              suffixText: '％',
+                              suffixStyle: TextStyle(
+                                  color: Colors.blueAccent,
+                                  height: 0.8,
+                                  fontWeight: FontWeight.w600,
+                                  fontFamily: 'Roboto'),
                               icon: Icon(
                                 Icons.cached,
                                 size: 35.0,
@@ -424,7 +472,14 @@ class _MainPageState extends State<MainPage> {
                           child: TextField(
                             decoration: InputDecoration(
                               labelText: '投資期間（年）',
-                              hintText: '数値で入力してください',
+                              hintText: '数値を入力',
+                              hintStyle: TextStyle(color: Colors.grey),
+                              suffixText: '年',
+                              suffixStyle: TextStyle(
+                                  color: Colors.blueAccent,
+                                  height: 0.8,
+                                  fontWeight: FontWeight.w600,
+                                  fontFamily: 'Roboto'),
                               icon: Icon(
                                 Icons.schedule,
                                 size: 35.0,
@@ -523,6 +578,7 @@ class _MainPageState extends State<MainPage> {
                             ),
                           ]),
                         ),
+                        Divider(),
                         Padding(
                           padding: EdgeInsets.fromLTRB(0.0, 10.0, 0.0, 10.0),
                           child: Center(
@@ -571,7 +627,7 @@ class _MainPageState extends State<MainPage> {
                           ),
                         ),
                         Padding(
-                          padding: EdgeInsets.fromLTRB(25.0, 5.0, 25.0, 70.0),
+                          padding: EdgeInsets.fromLTRB(25.0, 5.0, 25.0, 120.0),
                           child: RaisedButton.icon(
                             highlightElevation: 16.0,
                             highlightColor: Colors.orangeAccent,
