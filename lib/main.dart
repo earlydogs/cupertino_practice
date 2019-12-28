@@ -1,4 +1,4 @@
-import 'dart:ffi';
+
 
 import 'package:flutter/material.dart';
 import 'package:decimal/decimal.dart';
@@ -64,6 +64,8 @@ class _MainPageState extends State<MainPage> {
 
   //試験的に使ってみる変数たち
   String _outputFinalValue;
+
+
 
   //bool _active false;
 
@@ -135,27 +137,123 @@ class _MainPageState extends State<MainPage> {
     print(_inputPeriodYear);
   }
 
+  //GOボタン押下処理
   void buttonPressed() {
+    //入力チェック
+    if ((_controllerCurrentBalance.text == '') ||
+        (_controllerInterestRateYear.text == '') ||
+        (_controllerPeriodYear.text == '')) {
+      print('入力エラー');
+    } else {
+      //メイン処理コール
+      calcValueMain();
+    }
+  }
+
+  //メイン処理
+  void calcValueMain() {
+    //積立金額埋め
+    if (_controllerMonthlyAddition.text == '') {
+      this.setState(() {
+        _inputMonthlyAddition = Decimal.parse('0');
+      });
+    }
+
     print(_inputCurrentBalance);
     print(_inputMonthlyAddition);
     print(_inputInterestRateYear);
     print(_inputInterestRateYearActualNumber);
     print(_inputInterestRateMonthActualNumber);
     print(_inputPeriodYear);
-    print(_controllerCurrentBalance.text);
 
-    calcValue(
-      _inputCurrentBalance,
-      _inputMonthlyAddition,
-      _inputInterestRateMonthActualNumber,
-      _inputPeriodYear,
-    );
+    //積立タイプごとに計算分岐
+    switch (_additionalType) {
+      case '1':
+        {
+          calcValueStandard(
+            _inputCurrentBalance,
+            _inputMonthlyAddition,
+            _inputInterestRateMonthActualNumber,
+            _inputPeriodYear,
+          );
+        }
+        break;
+      case '2':
+        {
+          calcValueTwiceMonth(
+            _inputCurrentBalance,
+            _inputMonthlyAddition,
+            _inputInterestRateMonthActualNumber,
+            _inputPeriodYear,
+          );
+        }
+        break;
+      case '6':
+        {
+          calcValueHalfYear(
+            _inputCurrentBalance,
+            _inputMonthlyAddition,
+            _inputInterestRateMonthActualNumber,
+            _inputPeriodYear,
+          );
+        }
+        break;
+      case '12':
+        {
+          calcValueOneYear(
+            _inputCurrentBalance,
+            _inputMonthlyAddition,
+            _inputInterestRateMonthActualNumber,
+            _inputPeriodYear,
+          );
+        }
+        break;
+      default:
+        {
+          print('積立タイプ例外エラー');
+        }
+        break;
+    }
   }
 
-  void calcValue(Decimal a, Decimal b, Decimal c, Decimal d) {
+  void calcValueStandard(
+    Decimal a,
+    Decimal b,
+    Decimal c,
+    Decimal d,
+  ) {
     /*ここに計算を書く*/
   }
 
+  void calcValueTwiceMonth(
+    Decimal a,
+    Decimal b,
+    Decimal c,
+    Decimal d,
+  ) {
+    /*ここに計算を書く*/
+  }
+
+  void calcValueHalfYear(
+    Decimal a,
+    Decimal b,
+    Decimal c,
+    Decimal d,
+  ) {
+    /*ここに計算を書く*/
+  }
+
+  void calcValueOneYear(
+    Decimal a,
+    Decimal b,
+    Decimal c,
+    Decimal d,
+  ) {
+    /*ここに計算を書く*/
+  }
+
+
+  //数値クリア処理
   void allClear() {
     this.setState(() {
       _controllerCurrentBalance.clear();
@@ -170,6 +268,7 @@ class _MainPageState extends State<MainPage> {
       this._inputInterestRateMonthActualNumber = null;
       this._inputInterestRateYearActualNumber = null;
     });
+
   }
 
   @override
@@ -423,6 +522,20 @@ class _MainPageState extends State<MainPage> {
                               ),
                             ),
                           ]),
+                        ),
+                        Padding(
+                          padding: EdgeInsets.fromLTRB(0.0, 10.0, 0.0, 10.0),
+                          child: Center(
+                            child: Text(
+                              '計算結果',
+                              style: TextStyle(
+                                fontSize: 14.0,
+                                fontWeight: FontWeight.w600,
+                                fontFamily: 'Roboto',
+                                color: Colors.deepPurpleAccent,
+                              ),
+                            ),
+                          ),
                         ),
                         Padding(
                           padding: EdgeInsets.fromLTRB(25.0, 5.0, 25.0, 10.0),
