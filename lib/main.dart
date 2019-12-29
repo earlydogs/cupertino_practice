@@ -37,19 +37,19 @@ class _MainPageState extends State<MainPage> {
 
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
-  //FocusNode
+  // FocusNode
   final FocusNode _currentBalanceFocusNode = FocusNode(); // 入力項目：元本（万円）
   final FocusNode _monthlyAdditionFocusNode = FocusNode(); // 入力項目：積立金額（万円）
   final FocusNode _interestRateYearFocusNode = FocusNode(); // 入力項目：年利（％）
   final FocusNode _periodYearFocusNode = FocusNode(); // 入力項目：投資期間（年）
 
-  //入力項目のコントローラ
+  // 入力項目のコントローラ
   var _controllerCurrentBalance = TextEditingController(); // 入力項目：元本（万円）
   var _controllerMonthlyAddition = TextEditingController(); // 入力項目：積立金額（万円）
   var _controllerInterestRateYear = TextEditingController(); // 入力項目：年利（％）
   var _controllerPeriodYear = TextEditingController(); // 入力項目：投資期間（年）
 
-  //onChanged時、コントローラ => Decimalで受けるインスタンス
+  // onChanged時、コントローラ => Decimalで受けるインスタンス
   Decimal _inputCurrentBalance; // 入力項目：元本（万円）
   Decimal _inputMonthlyAddition; // 入力項目：積立金額（万円）
   Decimal _inputInterestRateYear; // 入力項目：年利（％）
@@ -58,21 +58,15 @@ class _MainPageState extends State<MainPage> {
   Decimal _inputInterestRateYearActualNumber; // 年利（実数）
   Decimal _inputInterestRateMonthActualNumber; // 月利（実数）
 
-  //積立タイプ
+  // 積立タイプ
   String _additionalType; // Xヶ月。文字列。1,2,6,12の４パターン
 
-  //試験的に使ってみる変数たち
-  String _outputFinalAsshole;
-  String _outputFinalBalance;
+  // 試験的に使ってみる変数たち
+  String _outputFinalAsshole; // 投資総額
+  String _outputFinalBalance; // 最終金額
 
-  //bool _active false;
 
-  //final d = Decimal.tryParse;
-
-  //List<String> valueList = ['1ヶ月ごと', '2ヶ月ごと', '6ヶ月ごと', '12ヶ月ごと'];
-  //String _additionalType = '1';
-
-  //KeyboardActionsConfig
+  // KeyboardActionsConfig
   KeyboardActionsConfig _buildConfig(BuildContext context) {
     return KeyboardActionsConfig(
       keyboardActionsPlatform: KeyboardActionsPlatform.ALL,
@@ -95,7 +89,7 @@ class _MainPageState extends State<MainPage> {
     );
   }
 
-  //項目設定メソッド
+  // 項目設定メソッド
   void setDecimalCurrentBalance(String value) {
     this.setState(() {
       _inputCurrentBalance = Decimal.parse(_controllerCurrentBalance.text);
@@ -130,7 +124,7 @@ class _MainPageState extends State<MainPage> {
     print(_inputPeriodYear);
   }
 
-  //GOボタン押下処理
+  // GOボタン押下処理
   void buttonPressed() {
     //入力チェック
     if ((_controllerCurrentBalance.text == '') ||
@@ -151,14 +145,14 @@ class _MainPageState extends State<MainPage> {
       // it to show a SnackBar.
       _scaffoldKey.currentState.showSnackBar(snackBarInputError);
     } else {
-      //メイン処理コール
+      // メイン処理コール
       calcValueMain();
     }
   }
 
-  //メイン処理
+  // メイン処理
   void calcValueMain() {
-    //積立金額埋め
+    // 積立金額埋め
     if (_controllerMonthlyAddition.text == '') {
       this.setState(() {
         _inputMonthlyAddition = Decimal.parse('0');
@@ -169,7 +163,7 @@ class _MainPageState extends State<MainPage> {
     print(_inputInterestRateYearActualNumber);
     print(_inputInterestRateMonthActualNumber);
 
-    //積立タイプごとに計算分岐
+    // 積立タイプごとに計算分岐
     switch (_additionalType) {
       case '1':
         {
@@ -190,6 +184,7 @@ class _MainPageState extends State<MainPage> {
             _inputMonthlyAddition,
             _inputInterestRateMonthActualNumber,
             _inputPeriodYear,
+            _inputInterestRateYear,
           );
           this.showMessageCalcComplete();
         }
@@ -201,6 +196,7 @@ class _MainPageState extends State<MainPage> {
             _inputMonthlyAddition,
             _inputInterestRateMonthActualNumber,
             _inputPeriodYear,
+            _inputInterestRateYear,
           );
           this.showMessageCalcComplete();
         }
@@ -212,6 +208,7 @@ class _MainPageState extends State<MainPage> {
             _inputMonthlyAddition,
             _inputInterestRateMonthActualNumber,
             _inputPeriodYear,
+            _inputInterestRateYear,
           );
           this.showMessageCalcComplete();
         }
@@ -237,6 +234,7 @@ class _MainPageState extends State<MainPage> {
     }
   }
 
+
   void showMessageCalcComplete() {
     final snackBarComplete = SnackBar(
       content: Text('計算されました！'),
@@ -253,6 +251,8 @@ class _MainPageState extends State<MainPage> {
     _scaffoldKey.currentState.showSnackBar(snackBarComplete);
   }
 
+
+  // 積立タイプ１ヶ月
   void calcValueStandard(
     Decimal currentBalance,
     Decimal monthlyAddition,
@@ -260,39 +260,45 @@ class _MainPageState extends State<MainPage> {
     int periodYear,
     Decimal interestRateYear,
   ) {
-    /*ここに計算を書く*/
 
-    List<Decimal> assholeFinalBalance = new List();
-    List<Decimal> simpleInterestBalance = new List();
-    List<Decimal> compoundInterestBalance = new List();
-    List<Decimal> compoundCalculationBalance = new List();
+    // 配列準備
+    List<Decimal> assholeFinalBalance = new List(); // タンス預金（年）
+    List<Decimal> simpleInterestBalance = new List(); // 単利計算（年）
+    List<Decimal> compoundInterestBalance = new List(); // 複利計算（年）
+    List<Decimal> compoundCalculationBalance = new List(); // 複利計算（月）
 
+    // INITIALIZE
     assholeFinalBalance.add(currentBalance);
     simpleInterestBalance.add(currentBalance);
     compoundInterestBalance.add(currentBalance);
     compoundCalculationBalance.add(currentBalance);
 
-    int count = 1;
-    int countYear = 1;
+    int count = 1; // 月カウント
+    int countYear = 1; // 年カウント
 
-    Decimal someValue1;
-    Decimal someValue2;
+    Decimal compoundMonthValue; // 毎月の金額
+    Decimal compoundYearValue; // 毎年の金額
 
+    /*
+    * 計算ループ　
+    * 毎月の金額を計算（小数第２位までで四捨五入）し、
+    * １年の節目で年額を計算する。
+    */
     while (count < periodYear * 12 + 1) {
-      someValue1 =
+      compoundMonthValue =
           ((((compoundCalculationBalance[count - 1] + monthlyAddition) *
                           interestRate) *
                       Decimal.fromInt(100))
                   .round() /
               Decimal.fromInt(100));
-      compoundCalculationBalance.add(someValue1);
+      compoundCalculationBalance.add(compoundMonthValue);
       if (count % 12 == 0) {
-        //タンス預金
+        // タンス預金
         assholeFinalBalance.add(currentBalance +
             ((monthlyAddition *
                 Decimal.fromInt(12) *
                 Decimal.fromInt(countYear))));
-        //単利計算
+        // 単利計算
         simpleInterestBalance.add(((currentBalance +
                         (monthlyAddition *
                             Decimal.fromInt(12) *
@@ -304,10 +310,10 @@ class _MainPageState extends State<MainPage> {
                     Decimal.fromInt(10))
                 .round() /
             Decimal.fromInt(10));
-        //複利計算
-        someValue2 =
-            (someValue1 * Decimal.fromInt(10)).round() / Decimal.fromInt(10);
-        compoundInterestBalance.add(someValue2);
+        // 複利計算
+        compoundYearValue = (compoundMonthValue * Decimal.fromInt(10)).round() /
+            Decimal.fromInt(10);
+        compoundInterestBalance.add(compoundYearValue);
 
         print('Asshole=${assholeFinalBalance[countYear]}');
         print('Tanri=${simpleInterestBalance[countYear]}');
@@ -318,19 +324,99 @@ class _MainPageState extends State<MainPage> {
       count++;
     }
 
+    // 画面表示をset
     setState(() {
       _outputFinalAsshole = assholeFinalBalance[countYear - 1].toString();
       _outputFinalBalance = compoundInterestBalance[countYear - 1].toString();
     });
   }
 
+  // 積立タイプ２ヶ月
   void calcValueTwiceMonth(
     Decimal currentBalance,
     Decimal monthlyAddition,
     Decimal interestRate,
     int periodYear,
+    Decimal interestRateYear,
   ) {
-    /*ここに計算を書く*/
+
+    // 配列準備
+    List<Decimal> assholeFinalBalance = new List(); // タンス預金（年）
+    List<Decimal> simpleInterestBalance = new List(); // 単利計算（年）
+    List<Decimal> compoundInterestBalance = new List(); // 複利計算（年）
+    List<Decimal> compoundCalculationBalance = new List(); // 複利計算（月）
+
+    //INITIALIZE
+    assholeFinalBalance.add(currentBalance);
+    simpleInterestBalance.add(currentBalance);
+    compoundInterestBalance.add(currentBalance);
+    compoundCalculationBalance.add(currentBalance);
+
+    int count = 1; //月カウント
+    int countYear = 1; //年カウント
+
+    Decimal compoundMonthValue; // 毎月の金額
+    Decimal compoundYearValue; // 毎年の金額
+
+    /*
+    * 計算ループ　
+    * 毎月の金額を計算（小数第２位までで四捨五入）し、
+    * １年の節目で年額を計算する。
+    */
+    while (count < periodYear * 12 + 1) {
+      if (count % 2 == 0) {
+        compoundMonthValue =
+        ((((compoundCalculationBalance[count - 1] + monthlyAddition) *
+            interestRate) *
+            Decimal.fromInt(100))
+            .round() /
+            Decimal.fromInt(100));
+        compoundCalculationBalance.add(compoundMonthValue);
+      } else {
+        compoundMonthValue =
+        (((compoundCalculationBalance[count - 1] * interestRate) *
+            Decimal.fromInt(100))
+            .round() /
+            Decimal.fromInt(100));
+        compoundCalculationBalance.add(compoundMonthValue);
+      }
+      if (count % 12 == 0) {
+        //タンス預金
+        assholeFinalBalance.add(currentBalance +
+            ((monthlyAddition *
+                Decimal.fromInt(6) *
+                Decimal.fromInt(countYear))));
+        //単利計算
+        simpleInterestBalance.add(((currentBalance +
+                        (monthlyAddition *
+                            Decimal.fromInt(6) *
+                            Decimal.fromInt(countYear)) +
+                        (currentBalance *
+                            interestRateYear /
+                            Decimal.fromInt(100) *
+                            Decimal.fromInt(countYear))) *
+                    Decimal.fromInt(10))
+                .round() /
+            Decimal.fromInt(10));
+        //複利計算
+        compoundYearValue = (compoundMonthValue * Decimal.fromInt(10)).round() /
+            Decimal.fromInt(10);
+        compoundInterestBalance.add(compoundYearValue);
+
+        print('Asshole=${assholeFinalBalance[countYear]}');
+        print('Tanri=${simpleInterestBalance[countYear]}');
+        print('Fukuri=${compoundInterestBalance[countYear]}');
+
+        countYear++;
+      }
+      count++;
+    }
+
+    //画面表示をset
+    setState(() {
+      _outputFinalAsshole = assholeFinalBalance[countYear - 1].toString();
+      _outputFinalBalance = compoundInterestBalance[countYear - 1].toString();
+    });
   }
 
   void calcValueHalfYear(
@@ -338,20 +424,175 @@ class _MainPageState extends State<MainPage> {
     Decimal monthlyAddition,
     Decimal interestRate,
     int periodYear,
+    Decimal interestRateYear,
   ) {
     /*ここに計算を書く*/
+
+    // 配列準備
+    List<Decimal> assholeFinalBalance = new List(); //タンス預金（年）
+    List<Decimal> simpleInterestBalance = new List(); //単利計算（年）
+    List<Decimal> compoundInterestBalance = new List(); //複利計算（年）
+    List<Decimal> compoundCalculationBalance = new List(); //複利計算（月）
+
+    // INITIALIZE
+    assholeFinalBalance.add(currentBalance);
+    simpleInterestBalance.add(currentBalance);
+    compoundInterestBalance.add(currentBalance);
+    compoundCalculationBalance.add(currentBalance);
+
+    int count = 1; // 月カウント
+    int countYear = 1; // 年カウント
+
+    Decimal compoundMonthValue; // 毎月の金額
+    Decimal compoundYearValue; // 毎年の金額
+
+    /*
+    * 計算ループ　
+    * 毎月の金額を計算（小数第２位までで四捨五入）し、
+    * １年の節目で年額を計算する。
+    */
+    while (count < periodYear * 12 + 1) {
+      if (count % 6 == 0) {
+        compoundMonthValue =
+            ((((compoundCalculationBalance[count - 1] + monthlyAddition) *
+                            interestRate) *
+                        Decimal.fromInt(100))
+                    .round() /
+                Decimal.fromInt(100));
+        compoundCalculationBalance.add(compoundMonthValue);
+      } else {
+        compoundMonthValue =
+            (((compoundCalculationBalance[count - 1] * interestRate) *
+                        Decimal.fromInt(100))
+                    .round() /
+                Decimal.fromInt(100));
+        compoundCalculationBalance.add(compoundMonthValue);
+      }
+
+      if (count % 12 == 0) {
+        // タンス預金
+        assholeFinalBalance.add(currentBalance +
+            ((monthlyAddition *
+                Decimal.fromInt(2) *
+                Decimal.fromInt(countYear))));
+        // 単利計算
+        simpleInterestBalance.add(((currentBalance +
+                        (monthlyAddition *
+                            Decimal.fromInt(2) *
+                            Decimal.fromInt(countYear)) +
+                        (currentBalance *
+                            interestRateYear /
+                            Decimal.fromInt(100) *
+                            Decimal.fromInt(countYear))) *
+                    Decimal.fromInt(10))
+                .round() /
+            Decimal.fromInt(10));
+        // 複利計算
+        compoundYearValue = (compoundMonthValue * Decimal.fromInt(10)).round() /
+            Decimal.fromInt(10);
+        compoundInterestBalance.add(compoundYearValue);
+
+        print('Asshole=${assholeFinalBalance[countYear]}');
+        print('Tanri=${simpleInterestBalance[countYear]}');
+        print('Fukuri=${compoundInterestBalance[countYear]}');
+
+        countYear++;
+      }
+      count++;
+    }
+
+    // 画面表示をset
+    setState(() {
+      _outputFinalAsshole = assholeFinalBalance[countYear - 1].toString();
+      _outputFinalBalance = compoundInterestBalance[countYear - 1].toString();
+    });
   }
 
+  // 積立タイプ６ヶ月
   void calcValueOneYear(
     Decimal currentBalance,
     Decimal monthlyAddition,
     Decimal interestRate,
     int periodYear,
+    Decimal interestRateYear,
   ) {
-    /*ここに計算を書く*/
+
+    // 配列準備
+    List<Decimal> assholeFinalBalance = new List(); // タンス預金（年）
+    List<Decimal> simpleInterestBalance = new List(); // 単利計算（年）
+    List<Decimal> compoundInterestBalance = new List(); // 複利計算（年）
+    List<Decimal> compoundCalculationBalance = new List(); // 複利計算（月）
+
+    // INITIALIZE
+    assholeFinalBalance.add(currentBalance);
+    simpleInterestBalance.add(currentBalance);
+    compoundInterestBalance.add(currentBalance);
+    compoundCalculationBalance.add(currentBalance);
+
+    int count = 1; // 月カウント
+    int countYear = 1; // 年カウント
+
+    Decimal compoundMonthValue; // 毎月の金額
+    Decimal compoundYearValue; // 毎年の金額
+
+    /*
+    * 計算ループ　
+    * 毎月の金額を計算（小数第２位までで四捨五入）し、
+    * １年の節目で年額を計算する。
+    */
+    while (count < periodYear * 12 + 1) {
+      if (count % 12 == 0) {
+        // タンス預金
+        assholeFinalBalance.add(
+            currentBalance + ((monthlyAddition * Decimal.fromInt(countYear))));
+        // 単利計算
+        simpleInterestBalance.add(((currentBalance +
+                        (monthlyAddition * Decimal.fromInt(countYear)) +
+                        (currentBalance *
+                            interestRateYear /
+                            Decimal.fromInt(100) *
+                            Decimal.fromInt(countYear))) *
+                    Decimal.fromInt(10))
+                .round() /
+            Decimal.fromInt(10));
+
+        // 複利計算
+        compoundMonthValue =
+            ((((compoundCalculationBalance[count - 1] + monthlyAddition) *
+                            interestRate) *
+                        Decimal.fromInt(100))
+                    .round() /
+                Decimal.fromInt(100));
+        compoundCalculationBalance.add(compoundMonthValue);
+
+        compoundYearValue = (compoundMonthValue * Decimal.fromInt(10)).round() /
+            Decimal.fromInt(10);
+        compoundInterestBalance.add(compoundYearValue);
+
+        print('Asshole=${assholeFinalBalance[countYear]}');
+        print('Tanri=${simpleInterestBalance[countYear]}');
+        print('Fukuri=${compoundInterestBalance[countYear]}');
+
+        countYear++;
+      } else {
+        compoundMonthValue =
+            (((compoundCalculationBalance[count - 1] * interestRate) *
+                        Decimal.fromInt(100))
+                    .round() /
+                Decimal.fromInt(100));
+        compoundCalculationBalance.add(compoundMonthValue);
+      }
+      count++;
+    }
+
+    // 画面表示をset
+    setState(() {
+      _outputFinalAsshole = assholeFinalBalance[countYear - 1].toString();
+      _outputFinalBalance = compoundInterestBalance[countYear - 1].toString();
+    });
   }
 
-  //数値クリア処理
+  // 数値クリア処理
   void allClear() {
     _currentBalanceFocusNode.unfocus();
     _monthlyAdditionFocusNode.unfocus();
@@ -409,7 +650,7 @@ class _MainPageState extends State<MainPage> {
                   fontWeight: FontWeight.w600,
                 )),
             bottom: TabBar(
-              //isScrollable: true,
+              // isScrollable: true,
               indicatorSize: TabBarIndicatorSize.tab,
               tabs: _tab,
             ),
@@ -715,6 +956,19 @@ class _MainPageState extends State<MainPage> {
                             ),
                           ),
                         ),
+                        ListTile(
+                          leading: Icon(Icons.face),
+                          title: Text(
+                            '増加率　：' + _outputFinalAsshole + '％',
+                            style: TextStyle(
+                              fontSize: 26.0,
+                              fontWeight: FontWeight.w600,
+                              fontFamily: 'Roboto',
+                            ),
+                          ),
+                          trailing: Icon(Icons.face),
+                        ),
+
                         Padding(
                           padding: EdgeInsets.fromLTRB(25.0, 5.0, 25.0, 120.0),
                           child: RaisedButton.icon(
