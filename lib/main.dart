@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:decimal/decimal.dart';
 import 'dart:math';
-
 import 'package:keyboard_actions/keyboard_actions.dart';
 
 void main() => runApp(new MyApp());
@@ -36,6 +35,8 @@ class _MainPageState extends State<MainPage> {
     Tab(text: 'Table', icon: Icon(Icons.view_list)),
   ];
 
+  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+
   //FocusNode
   final FocusNode _currentBalanceFocusNode = FocusNode(); // 入力項目：元本（万円）
   final FocusNode _monthlyAdditionFocusNode = FocusNode(); // 入力項目：積立金額（万円）
@@ -52,7 +53,7 @@ class _MainPageState extends State<MainPage> {
   Decimal _inputCurrentBalance; // 入力項目：元本（万円）
   Decimal _inputMonthlyAddition; // 入力項目：積立金額（万円）
   Decimal _inputInterestRateYear; // 入力項目：年利（％）
-  Decimal _inputPeriodYear; // 入力項目：投資期間（年）
+  int _inputPeriodYear; // 入力項目：投資期間（年）
 
   Decimal _inputInterestRateYearActualNumber; // 年利（実数）
   Decimal _inputInterestRateMonthActualNumber; // 月利（実数）
@@ -61,13 +62,12 @@ class _MainPageState extends State<MainPage> {
   String _additionalType; // Xヶ月。文字列。1,2,6,12の４パターン
 
   //試験的に使ってみる変数たち
-  String _outputFinalValue;
-
-  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+  String _outputFinalAsshole;
+  String _outputFinalBalance;
 
   //bool _active false;
 
-  final d = Decimal.tryParse;
+  //final d = Decimal.tryParse;
 
   //List<String> valueList = ['1ヶ月ごと', '2ヶ月ごと', '6ヶ月ごと', '12ヶ月ごと'];
   //String _additionalType = '1';
@@ -100,14 +100,12 @@ class _MainPageState extends State<MainPage> {
     this.setState(() {
       _inputCurrentBalance = Decimal.parse(_controllerCurrentBalance.text);
     });
-    print(_inputCurrentBalance);
   }
 
   void setDecimalMonthlyAddition(String value) {
     this.setState(() {
       _inputMonthlyAddition = Decimal.parse(_controllerMonthlyAddition.text);
     });
-    print(_inputMonthlyAddition);
   }
 
   void setDecimalInterestRateYear(String value) {
@@ -123,14 +121,11 @@ class _MainPageState extends State<MainPage> {
               10000)
           .toString());
     });
-    print(_inputInterestRateYear);
-    print(_inputInterestRateYearActualNumber);
-    print(_inputInterestRateMonthActualNumber);
   }
 
   void setDecimalPeriodYear(String value) {
     this.setState(() {
-      _inputPeriodYear = Decimal.parse(_controllerPeriodYear.text);
+      _inputPeriodYear = int.parse(_controllerPeriodYear.text);
     });
     print(_inputPeriodYear);
   }
@@ -170,12 +165,9 @@ class _MainPageState extends State<MainPage> {
       });
     }
 
-    print(_inputCurrentBalance);
-    print(_inputMonthlyAddition);
     print(_inputInterestRateYear);
     print(_inputInterestRateYearActualNumber);
     print(_inputInterestRateMonthActualNumber);
-    print(_inputPeriodYear);
 
     //積立タイプごとに計算分岐
     switch (_additionalType) {
@@ -186,7 +178,9 @@ class _MainPageState extends State<MainPage> {
             _inputMonthlyAddition,
             _inputInterestRateMonthActualNumber,
             _inputPeriodYear,
+            _inputInterestRateYear,
           );
+          this.showMessageCalcComplete();
         }
         break;
       case '2':
@@ -197,6 +191,7 @@ class _MainPageState extends State<MainPage> {
             _inputInterestRateMonthActualNumber,
             _inputPeriodYear,
           );
+          this.showMessageCalcComplete();
         }
         break;
       case '6':
@@ -207,6 +202,7 @@ class _MainPageState extends State<MainPage> {
             _inputInterestRateMonthActualNumber,
             _inputPeriodYear,
           );
+          this.showMessageCalcComplete();
         }
         break;
       case '12':
@@ -217,48 +213,140 @@ class _MainPageState extends State<MainPage> {
             _inputInterestRateMonthActualNumber,
             _inputPeriodYear,
           );
+          this.showMessageCalcComplete();
         }
         break;
       default:
         {
           print('積立タイプ例外エラー');
+          final snackBarErrorAdditionType = SnackBar(
+            content: Text('積立タイプを選択してください'),
+            action: SnackBarAction(
+              label: 'すみません',
+              onPressed: () {
+                // Some code to undo the change.
+              },
+            ),
+          );
+
+          // Find the Scaffold in the widget tree and use
+          // it to show a SnackBar.
+          _scaffoldKey.currentState.showSnackBar(snackBarErrorAdditionType);
         }
         break;
     }
   }
 
-  void calcValueStandard(
-    Decimal a,
-    Decimal b,
-    Decimal c,
-    Decimal d,
+  void showMessageCalcComplete() {
+    final snackBarComplete = SnackBar(
+      content: Text('計算されました！'),
+      action: SnackBarAction(
+        label: 'りょ',
+        onPressed: () {
+          // Some code to undo the change.
+        },
+      ),
+    );
+
+    // Find the Scaffold in the widget tree and use
+    // it to show a SnackBar.
+    _scaffoldKey.currentState.showSnackBar(snackBarComplete);
+  }
+
+  String calcValueStandard(
+    Decimal currentBalance,
+    Decimal monthlyAddition,
+    Decimal interestRate,
+    int periodYear,
+    Decimal interestRateYear,
   ) {
     /*ここに計算を書く*/
+
+    List<Decimal> assholeFinalBalance = new List();
+    List<Decimal> simpleInterestBalance = new List();
+    List<Decimal> compoundInterestBalance = new List();
+    List<Decimal> compoundCalculationBalance = new List();
+
+    assholeFinalBalance.add(currentBalance);
+    simpleInterestBalance.add(currentBalance);
+    compoundInterestBalance.add(currentBalance);
+    compoundCalculationBalance.add(currentBalance);
+
+    int count = 1;
+    int countYear = 1;
+
+    Decimal someValue1;
+    Decimal someValue2;
+
+    while (count < periodYear * 12 + 1) {
+      someValue1 =
+          ((((compoundCalculationBalance[count - 1] + monthlyAddition) *
+                          interestRate) *
+                      Decimal.fromInt(100))
+                  .round() /
+              Decimal.fromInt(100));
+      compoundCalculationBalance.add(someValue1);
+      if (count % 12 == 0) {
+        //タンス預金
+        assholeFinalBalance.add(currentBalance +
+            ((monthlyAddition *
+                Decimal.fromInt(12) *
+                Decimal.fromInt(countYear))));
+        //単利計算
+        simpleInterestBalance.add(((currentBalance +
+                        (monthlyAddition *
+                            Decimal.fromInt(12) *
+                            Decimal.fromInt(countYear)) +
+                        (currentBalance *
+                            interestRateYear /
+                            Decimal.fromInt(100) *
+                            Decimal.fromInt(countYear))) *
+                    Decimal.fromInt(10))
+                .round() /
+            Decimal.fromInt(10));
+        //複利計算
+        someValue2 =
+            (someValue1 * Decimal.fromInt(10)).round() / Decimal.fromInt(10);
+        compoundInterestBalance.add(someValue2);
+
+        print('Asshole=${assholeFinalBalance[countYear]}');
+        print('Tanri=${simpleInterestBalance[countYear]}');
+        print('Fukuri=${compoundInterestBalance[countYear]}');
+
+        countYear++;
+      }
+      count++;
+    }
+
+    setState(() {
+      _outputFinalAsshole = assholeFinalBalance[countYear - 1].toString();
+      _outputFinalBalance = compoundInterestBalance[countYear - 1].toString();
+    });
   }
 
   void calcValueTwiceMonth(
-    Decimal a,
-    Decimal b,
-    Decimal c,
-    Decimal d,
+    Decimal currentBalance,
+    Decimal monthlyAddition,
+    Decimal interestRate,
+    int periodYear,
   ) {
     /*ここに計算を書く*/
   }
 
   void calcValueHalfYear(
-    Decimal a,
-    Decimal b,
-    Decimal c,
-    Decimal d,
+    Decimal currentBalance,
+    Decimal monthlyAddition,
+    Decimal interestRate,
+    int periodYear,
   ) {
     /*ここに計算を書く*/
   }
 
   void calcValueOneYear(
-    Decimal a,
-    Decimal b,
-    Decimal c,
-    Decimal d,
+    Decimal currentBalance,
+    Decimal monthlyAddition,
+    Decimal interestRate,
+    int periodYear,
   ) {
     /*ここに計算を書く*/
   }
@@ -300,7 +388,8 @@ class _MainPageState extends State<MainPage> {
   @override
   void initState() {
     _additionalType = '1';
-    _outputFinalValue = 'NG';
+    _outputFinalAsshole = '0';
+    _outputFinalBalance = '0';
     super.initState();
   }
 
@@ -456,7 +545,7 @@ class _MainPageState extends State<MainPage> {
                             controller: _controllerInterestRateYear,
                             keyboardType: TextInputType.number,
                             focusNode: _interestRateYearFocusNode,
-                            maxLength: 5,
+                            maxLength: 4,
                             maxLengthEnforced: true,
                             style: TextStyle(
                                 fontSize: 16.0,
@@ -493,7 +582,7 @@ class _MainPageState extends State<MainPage> {
                             controller: _controllerPeriodYear,
                             keyboardType: TextInputType.number,
                             focusNode: _periodYearFocusNode,
-                            maxLength: 5,
+                            maxLength: 2,
                             maxLengthEnforced: true,
                             style: TextStyle(
                                 fontSize: 16.0,
@@ -596,7 +685,7 @@ class _MainPageState extends State<MainPage> {
                         Padding(
                           padding: EdgeInsets.fromLTRB(25.0, 5.0, 25.0, 10.0),
                           child: Text(
-                            '投資総額：' + _outputFinalValue + '万円',
+                            '投資総額：' + _outputFinalAsshole + '万円',
                             style: TextStyle(
                               fontSize: 26.0,
                               fontWeight: FontWeight.w600,
@@ -607,7 +696,7 @@ class _MainPageState extends State<MainPage> {
                         Padding(
                           padding: EdgeInsets.fromLTRB(25.0, 5.0, 25.0, 10.0),
                           child: Text(
-                            '最終金額：' + _outputFinalValue + '万円',
+                            '最終金額：' + _outputFinalBalance + '万円',
                             style: TextStyle(
                               fontSize: 26.0,
                               fontWeight: FontWeight.w600,
@@ -618,7 +707,7 @@ class _MainPageState extends State<MainPage> {
                         Padding(
                           padding: EdgeInsets.fromLTRB(25.0, 5.0, 25.0, 10.0),
                           child: Text(
-                            '増加率　：' + _outputFinalValue + '％',
+                            '増加率　：' + _outputFinalAsshole + '％',
                             style: TextStyle(
                               fontSize: 26.0,
                               fontWeight: FontWeight.w600,
