@@ -253,7 +253,7 @@ class _MainPageState extends State<MainPage> {
     _scaffoldKey.currentState.showSnackBar(snackBarComplete);
   }
 
-  String calcValueStandard(
+  void calcValueStandard(
     Decimal currentBalance,
     Decimal monthlyAddition,
     Decimal interestRate,
