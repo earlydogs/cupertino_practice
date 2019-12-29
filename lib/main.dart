@@ -426,7 +426,6 @@ class _MainPageState extends State<MainPage> {
     int periodYear,
     Decimal interestRateYear,
   ) {
-    /*ここに計算を書く*/
 
     // 配列準備
     List<Decimal> assholeFinalBalance = new List(); //タンス預金（年）
