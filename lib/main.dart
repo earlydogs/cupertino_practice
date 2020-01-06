@@ -65,7 +65,6 @@ class _MainPageState extends State<MainPage> {
   String _outputFinalAsshole; // 投資総額
   String _outputFinalBalance; // 最終金額
 
-
   // KeyboardActionsConfig
   KeyboardActionsConfig _buildConfig(BuildContext context) {
     return KeyboardActionsConfig(
@@ -234,7 +233,6 @@ class _MainPageState extends State<MainPage> {
     }
   }
 
-
   void showMessageCalcComplete() {
     final snackBarComplete = SnackBar(
       content: Text('計算されました！'),
@@ -251,7 +249,6 @@ class _MainPageState extends State<MainPage> {
     _scaffoldKey.currentState.showSnackBar(snackBarComplete);
   }
 
-
   // 積立タイプ１ヶ月
   void calcValueStandard(
     Decimal currentBalance,
@@ -260,7 +257,6 @@ class _MainPageState extends State<MainPage> {
     int periodYear,
     Decimal interestRateYear,
   ) {
-
     // 配列準備
     List<Decimal> assholeFinalBalance = new List(); // タンス預金（年）
     List<Decimal> simpleInterestBalance = new List(); // 単利計算（年）
@@ -339,7 +335,6 @@ class _MainPageState extends State<MainPage> {
     int periodYear,
     Decimal interestRateYear,
   ) {
-
     // 配列準備
     List<Decimal> assholeFinalBalance = new List(); // タンス預金（年）
     List<Decimal> simpleInterestBalance = new List(); // 単利計算（年）
@@ -366,18 +361,18 @@ class _MainPageState extends State<MainPage> {
     while (count < periodYear * 12 + 1) {
       if (count % 2 == 0) {
         compoundMonthValue =
-        ((((compoundCalculationBalance[count - 1] + monthlyAddition) *
-            interestRate) *
-            Decimal.fromInt(100))
-            .round() /
-            Decimal.fromInt(100));
+            ((((compoundCalculationBalance[count - 1] + monthlyAddition) *
+                            interestRate) *
+                        Decimal.fromInt(100))
+                    .round() /
+                Decimal.fromInt(100));
         compoundCalculationBalance.add(compoundMonthValue);
       } else {
         compoundMonthValue =
-        (((compoundCalculationBalance[count - 1] * interestRate) *
-            Decimal.fromInt(100))
-            .round() /
-            Decimal.fromInt(100));
+            (((compoundCalculationBalance[count - 1] * interestRate) *
+                        Decimal.fromInt(100))
+                    .round() /
+                Decimal.fromInt(100));
         compoundCalculationBalance.add(compoundMonthValue);
       }
       if (count % 12 == 0) {
@@ -426,7 +421,6 @@ class _MainPageState extends State<MainPage> {
     int periodYear,
     Decimal interestRateYear,
   ) {
-
     // 配列準備
     List<Decimal> assholeFinalBalance = new List(); //タンス預金（年）
     List<Decimal> simpleInterestBalance = new List(); //単利計算（年）
@@ -515,7 +509,6 @@ class _MainPageState extends State<MainPage> {
     int periodYear,
     Decimal interestRateYear,
   ) {
-
     // 配列準備
     List<Decimal> assholeFinalBalance = new List(); // タンス預金（年）
     List<Decimal> simpleInterestBalance = new List(); // 単利計算（年）
@@ -967,7 +960,6 @@ class _MainPageState extends State<MainPage> {
                           ),
                           trailing: Icon(Icons.face),
                         ),
-
                         Padding(
                           padding: EdgeInsets.fromLTRB(25.0, 5.0, 25.0, 120.0),
                           child: RaisedButton.icon(
@@ -1006,7 +998,8 @@ class _MainPageState extends State<MainPage> {
               ),
             ),
             TabPage(title: 'Graph', icon: Icons.trending_up),
-            TabPage(title: 'Table', icon: Icons.view_list),
+            //TabPage(title: 'Table', icon: Icons.view_list),
+            DataTablePage(),
           ]),
         ),
         drawer: Drawer(child: ListView()),
@@ -1049,6 +1042,34 @@ class TabPage extends StatelessWidget {
             Icon(icon, size: 72.0, color: textStyle.color),
             Text(title, style: textStyle),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class DataTablePage extends StatefulWidget {
+  DataTablePage({Key key}) : super(key: key);
+  @override
+  _DataTablePageState createState() => new _DataTablePageState();
+}
+
+class _DataTablePageState extends State<DataTablePage> {
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      margin: EdgeInsets.all(10.0),
+      child: SingleChildScrollView(
+        child:Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: <Widget>[
+              Icon(Icons.view_list, size: 72.0, color: Colors.blueGrey, ),
+              Text('Table',),
+            ],
+          ),
         ),
       ),
     );
